@@ -33,7 +33,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 **Probability values:** The plant probabilities change constantly because I adjust them myself in `settings.js`. Never change any probability values in the code unless I specifically ask. If the numbers in `settings.js` differ from the numbers in the rules text, `settings.js` is correct.
 
 ### Decisions (answered open questions)
-- **Spreading rolls:** Rules 2, 5, and 7 each have their own setting in the code, with two choices:
+- **Spreading rolls:** Rules 2, 3, 5, and 7 each have their own setting in the code, with two choices:
   - "each neighbor": every neighboring cell gets its own roll.
   - "one neighbor": the cell picks one random neighbor and rolls once.
   These are settings in the code only, with no on-screen control. I want to test both.
@@ -41,6 +41,13 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 - **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: fire beats tree, tree beats shrub, shrub beats grass.
 - **Grid edges:** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
 - **"One neighbor" mode at edges:** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
+
+### Rule 3 decisions (grass spreading from shrubs/trees)
+- **Who rolls:** Every shrub and tree cell does its own rule 3 roll each step.
+- **Where grass can land:** Bare ground only. Rule 3 never replaces a shrub, tree, or fire.
+- **"One neighbor" mode:** Same as the plants: pick any of the 8 directions; if that cell isn't bare ground (or is off the grid), nothing happens.
+- **Separate from rules 5 and 7:** A shrub or tree makes its rule 3 pick separately from its own spreading pick (rule 5 or 7), so it can do both in one step.
+- **Tiebreaker:** No conflict is possible (rule 3 only targets bare ground, where nothing else but grass can land), so the existing order stays.
 
 ### Fire decisions
 - **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step.
