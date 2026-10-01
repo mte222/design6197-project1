@@ -1,11 +1,12 @@
 // RULES
 // Each rule below matches a numbered rule in CLAUDE.md.
 
-// Cell types. Bigger numbers are bigger plants.
+// Cell types. Bigger numbers win conflicts (see grow below).
 const BARE = 0;
 const GRASS = 1;
 const SHRUB = 2;
 const TREE = 3;
+const FIRE = 4;
 
 // RULE 1: Starting point.
 // The map starts as a grid full of bare ground, with grass in the center cell.
@@ -33,7 +34,7 @@ function rollOneIn(n) {
   return Math.random() < 1 / n;
 }
 
-// Is this spot inside the grid? (Plants stop at the edge.)
+// Is this spot inside the grid? (Plants and fire stop at the edge.)
 function isInGrid(grid, row, col) {
   return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
 }
@@ -58,7 +59,8 @@ function hasNeighborOfType(grid, row, col, types) {
 }
 
 // Changes a cell in the new grid. If more than one rule changes the same cell
-// in the same step, the bigger plant wins (tree beats shrub, shrub beats grass).
+// in the same step, the bigger one wins (fire beats tree, tree beats shrub,
+// shrub beats grass).
 function grow(after, row, col, type) {
   if (type > after[row][col]) after[row][col] = type;
 }
@@ -73,50 +75,51 @@ function runStep(before) {
     for (let col = 0; col < before[row].length; col++) {
       const cell = before[row][col];
 
-      // RULE 2: Grass/wildflowers have a 1 in 2 chance of spreading next to
-      // grass/wildflowers, as long as that cell is not occupied by a shrub/tree.
+      // RULE 2: Grass or wildflowers have a 1 in 2 chance of spreading next to
+      // grass/wildflowers, as long as that cell is not occupied by a shrub/tree/fire.
       if (cell === GRASS) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.GRASS_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
           const target = before[r][c];
-          if (target === SHRUB || target === TREE) continue;
+          if (target === SHRUB || target === TREE || target === FIRE) continue;
           if (rollOneIn(SETTINGS.GRASS_SPREAD_ONE_IN)) grow(after, r, c, GRASS);
         }
       }
 
-      // RULE 3: Each grass/wildflower cell has a 1 in 100 chance of having shrubs
-      // emerge from it, as long as it is not bordered by a shrub/tree on any side.
-      if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE])) {
+      // RULE 3: Each grass/wildflower cell has a 1 in 1000 chance of having shrubs
+      // emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
+      if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE, FIRE])) {
         if (rollOneIn(SETTINGS.SHRUB_EMERGE_ONE_IN)) grow(after, row, col, SHRUB);
       }
 
-      // RULE 4: Each shrub cell has a 1 in 3 chance of a shrub replicating in the
-      // cell next to it, as long as that cell is not occupied by a tree.
+      // RULE 4: Each shrub cell has a 1 in 6 chance of a shrub replicating in the
+      // cell next to it, as long as that cell is not occupied by a tree or fire.
       if (cell === SHRUB) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.SHRUB_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
-          if (before[r][c] === TREE) continue;
+          if (before[r][c] === TREE || before[r][c] === FIRE) continue;
           if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
         }
       }
 
-      // RULE 5: Each grass/wildflower/shrub cell has a 1 in 200 chance of having
-      // trees emerge from it, as long as it is not bordered by a tree on any side.
-      if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE])) {
+      // RULE 5: Each grass/wildflower/shrub has a 1 in 2000 chance of having trees
+      // emerge from it, as long as it is not bordered by a tree or fire on any side.
+      if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE, FIRE])) {
         if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
       }
 
-      // RULE 6: Each tree cell has a 1 in 4 chance of a tree cell replicating
-      // in the cell next to it.
+      // RULE 6: Each tree cell has a 1 in 10 chance of a tree cell replicating
+      // in the cell next to it, as long as that cell is not occupied by fire.
       if (cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
+          if (before[r][c] === FIRE) continue;
           if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
         }
       }
