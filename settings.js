@@ -8,6 +8,12 @@ const SETTINGS = {
   // How many pixels wide each cell is drawn on screen.
   CELL_SIZE: 8,
 
+  // WRAP-AROUND EDGES: true or false.
+  //   true  - the left edge connects to the right and the top to the bottom,
+  //           so every cell has exactly 8 neighbors.
+  //   false - plants and fire stop at the edge (the original edge choices).
+  WRAP_EDGES: true,
+
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
   GRASS_FROM_SHRUB_TREE_ONE_IN: 10, // Rule 3

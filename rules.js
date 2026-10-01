@@ -49,9 +49,24 @@ function rollOneIn(n) {
   return Math.random() < 1 / n;
 }
 
-// Is this spot inside the grid? (Plants and fire stop at the edge.)
+// Is this spot inside the grid?
 function isInGrid(grid, row, col) {
   return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
+}
+
+// The neighbor of (row, col) in the direction (dRow, dCol), as [row, col].
+// Every rule finds its neighbors through here.
+// - Wrap-around on: spots past an edge loop around to the opposite side.
+// - Wrap-around off: spots past an edge return null (plants and fire stop there).
+function neighborAt(grid, row, col, dRow, dCol) {
+  let r = row + dRow;
+  let c = col + dCol;
+  if (SETTINGS.WRAP_EDGES) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    return [(r + rows) % rows, (c + cols) % cols];
+  }
+  return isInGrid(grid, r, c) ? [r, c] : null;
 }
 
 // Which directions a spreading cell tries this step, based on its spreading mode.
@@ -66,9 +81,8 @@ function directionsToTry(mode) {
 // Does this cell have any of the given types among its 8 neighbors?
 function hasNeighborOfType(grid, row, col, types) {
   for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
-    const r = row + dRow;
-    const c = col + dCol;
-    if (isInGrid(grid, r, c) && types.includes(grid[r][c])) return true;
+    const spot = neighborAt(grid, row, col, dRow, dCol);
+    if (spot && types.includes(grid[spot[0]][spot[1]])) return true;
   }
   return false;
 }
@@ -80,10 +94,10 @@ function fireTargets(grid, row, col, mode) {
   const burnable = [];
   let offGrid = 0;
   for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
-    const r = row + dRow;
-    const c = col + dCol;
-    if (!isInGrid(grid, r, c)) offGrid++;
-    else if (grid[r][c] === SHRUB || grid[r][c] === TREE || grid[r][c] === GRASS) burnable.push([r, c]);
+    const spot = neighborAt(grid, row, col, dRow, dCol);
+    if (!spot) { offGrid++; continue; }
+    const [r, c] = spot;
+    if (grid[r][c] === SHRUB || grid[r][c] === TREE || grid[r][c] === GRASS) burnable.push([r, c]);
   }
   if (mode === "each neighbor") return burnable;
   if (mode === "one neighbor") {
@@ -96,16 +110,16 @@ function fireTargets(grid, row, col, mode) {
 }
 
 // How many of this cell's neighbors are one of the given types, and how many
-// real (on-grid) neighbors it has: 8 in the middle, 5 on an edge, 3 in a corner.
+// real (on-grid) neighbors it has: 8 in the middle, 5 on an edge, 3 in a corner
+// (always 8 when wrap-around is on).
 function countNeighbors(grid, row, col, types) {
   let matching = 0;
   let real = 0;
   for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
-    const r = row + dRow;
-    const c = col + dCol;
-    if (!isInGrid(grid, r, c)) continue;
+    const spot = neighborAt(grid, row, col, dRow, dCol);
+    if (!spot) continue;
     real++;
-    if (types.includes(grid[r][c])) matching++;
+    if (types.includes(grid[spot[0]][spot[1]])) matching++;
   }
   return { matching, real };
 }
@@ -131,9 +145,9 @@ function runStep(before) {
       // grass/wildflowers, as long as that cell is not occupied by a shrub/tree/fire.
       if (cell === GRASS) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.GRASS_SPREAD_MODE)) {
-          const r = row + dRow;
-          const c = col + dCol;
-          if (!isInGrid(before, r, c)) continue;
+          const spot = neighborAt(before, row, col, dRow, dCol);
+          if (!spot) continue;
+          const [r, c] = spot;
           const target = before[r][c];
           if (target === SHRUB || target === TREE || isFire(target)) continue;
           if (target === BURNED) continue; // Nothing can spread into burned ground.
@@ -147,9 +161,9 @@ function runStep(before) {
       // or tree's own spreading pick in rules 5 and 7.)
       if (cell === SHRUB || cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.GRASS_FROM_SHRUB_TREE_MODE)) {
-          const r = row + dRow;
-          const c = col + dCol;
-          if (!isInGrid(before, r, c)) continue;
+          const spot = neighborAt(before, row, col, dRow, dCol);
+          if (!spot) continue;
+          const [r, c] = spot;
           if (before[r][c] !== BARE) continue;
           if (rollOneIn(SETTINGS.GRASS_FROM_SHRUB_TREE_ONE_IN)) grow(after, r, c, GRASS);
         }
@@ -166,9 +180,9 @@ function runStep(before) {
       // bare ground.
       if (cell === SHRUB) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.SHRUB_SPREAD_MODE)) {
-          const r = row + dRow;
-          const c = col + dCol;
-          if (!isInGrid(before, r, c)) continue;
+          const spot = neighborAt(before, row, col, dRow, dCol);
+          if (!spot) continue;
+          const [r, c] = spot;
           const target = before[r][c];
           if (target === TREE || isFire(target) || target === BARE) continue;
           if (target === BURNED) continue; // Nothing can spread into burned ground.
@@ -186,9 +200,9 @@ function runStep(before) {
       // in the cell next to it, as long as that cell is a shrub.
       if (cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
-          const r = row + dRow;
-          const c = col + dCol;
-          if (!isInGrid(before, r, c)) continue;
+          const spot = neighborAt(before, row, col, dRow, dCol);
+          if (!spot) continue;
+          const [r, c] = spot;
           if (before[r][c] !== SHRUB) continue;
           if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
         }
