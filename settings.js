@@ -12,6 +12,7 @@ const SETTINGS = {
   GRASS_SPREAD_ONE_IN: 2,     // Rule 2
   SHRUB_EMERGE_ONE_IN: 100,   // Rule 3
   SHRUB_SPREAD_ONE_IN: 3,     // Rule 4
+  TREE_EMERGE_ONE_IN: 200,    // Rule 5
 
   // SPREADING MODES, one per spreading rule. Choose one:
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.

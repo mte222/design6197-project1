@@ -103,6 +103,12 @@ function runStep(before) {
           if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
         }
       }
+
+      // RULE 5: Each grass/wildflower/shrub cell has a 1 in 200 chance of having
+      // trees emerge from it, as long as it is not bordered by a tree on any side.
+      if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE])) {
+        if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
+      }
     }
   }
 
