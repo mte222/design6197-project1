@@ -17,7 +17,7 @@ I am designing the rules myself. You are helping me build them. The current goal
 - Technical decisions that don't change how the rules behave (file structure, code style, drawing method) are yours to make. Briefly tell me what you chose.
 
 ## The rules (current version)
-Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
+Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 
 1. Starting point: Map starts with grass in center cell of grid full of bare ground cells. "Next to" is considered direct border as well as diagonal.
 2. Grass or wildflowers have a 1 in 2 chance of spreading next to grass/wildflowers, as long as that cell is not occupied by a shrub/tree/fire.
@@ -25,10 +25,13 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 4. Each grass/wildflower cell has a 1 in 1000 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
 5. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire or bare ground.
 6. Each grass/wildflower/shrub has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
-7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is not occupied by fire or bare ground.
+7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is a shrub.
 8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
-10. When a fire cell is extinguished, the cell returns to bare ground.
+10. When a fire cell is extinguished, the cell becomes burned ground.
+11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground.
+
+**Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
 **Probability values:** The plant probabilities change constantly because I adjust them myself in `settings.js`. Never change any probability values in the code unless I specifically ask. If the numbers in `settings.js` differ from the numbers in the rules text, `settings.js` is correct.
 
