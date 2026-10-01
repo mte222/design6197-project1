@@ -34,6 +34,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree.
 - **Update timing:** All cells look at the grid as it was at the start of the step, then all changes are applied together. A cell that changes during a step can't act until the next step.
 - **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: tree beats shrub, shrub beats grass.
 - **Grid edges:** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
+- **"One neighbor" mode at edges:** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
 
 ## Prototype scope
 - Shows the grid animating step by step.
