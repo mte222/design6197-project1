@@ -10,6 +10,7 @@ const SETTINGS = {
 
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 2,     // Rule 2
+  GRASS_FROM_SHRUB_TREE_ONE_IN: 4, // Rule 3
   SHRUB_EMERGE_ONE_IN: 1000,   // Rule 4
   SHRUB_SPREAD_ONE_IN: 6,     // Rule 5
   TREE_EMERGE_ONE_IN: 2000,    // Rule 6
@@ -23,6 +24,7 @@ const SETTINGS = {
   //   "one neighbor"  - pick one of the 8 directions at random and roll once.
   //                     If it points off the edge of the grid, nothing happens.
   GRASS_SPREAD_MODE: "one neighbor", // Rule 2
+  GRASS_FROM_SHRUB_TREE_MODE: "one neighbor", // Rule 3
   SHRUB_SPREAD_MODE: "one neighbor", // Rule 5
   TREE_SPREAD_MODE: "one neighbor",  // Rule 7
   // Fire in "one neighbor" mode picks only from shrub/tree neighbors, plus any

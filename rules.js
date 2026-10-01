@@ -110,6 +110,20 @@ function runStep(before) {
         }
       }
 
+      // RULE 3: Grass has a 1 in 4 chance of spreading from shrubs/trees cells to
+      // the cells next to them.
+      // (Grass only lands on bare ground. This pick is separate from the shrub's
+      // or tree's own spreading pick in rules 5 and 7.)
+      if (cell === SHRUB || cell === TREE) {
+        for (const [dRow, dCol] of directionsToTry(SETTINGS.GRASS_FROM_SHRUB_TREE_MODE)) {
+          const r = row + dRow;
+          const c = col + dCol;
+          if (!isInGrid(before, r, c)) continue;
+          if (before[r][c] !== BARE) continue;
+          if (rollOneIn(SETTINGS.GRASS_FROM_SHRUB_TREE_ONE_IN)) grow(after, r, c, GRASS);
+        }
+      }
+
       // RULE 4: Each grass/wildflower cell has a 1 in 1000 chance of having shrubs
       // emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
       if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE, FIRE])) {
