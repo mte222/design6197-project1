@@ -17,14 +17,19 @@ I am designing the rules myself. You are helping me build them. The current goal
 - Technical decisions that don't change how the rules behave (file structure, code style, drawing method) are yours to make. Briefly tell me what you chose.
 
 ## The rules (current version)
-Cell types: bare ground, grass/wildflowers, shrub, tree.
+Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 
-1. **Starting point:** The map starts with grass in the center cell of a grid full of bare ground cells. "Next to" means direct borders as well as diagonals (8 neighbors).
-2. Grass/wildflowers have a 1 in 2 chance of spreading next to grass/wildflowers, as long as that cell is not occupied by a shrub/tree.
-3. Each grass/wildflower cell has a 1 in 100 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree on any side.
-4. Each shrub cell has a 1 in 3 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree.
-5. Each grass/wildflower/shrub cell has a 1 in 200 chance of having trees emerge from it, as long as it is not bordered by a tree on any side.
-6. Each tree cell has a 1 in 4 chance of a tree cell replicating in the cell next to it.
+1. Starting point: Map starts with grass in center cell of grid full of bare ground cells. "Next to" is considered direct border as well as diagonal.
+2. Grass or wildflowers have a 1 in 2 chance of spreading next to grass/wildflowers, as long as that cell is not occupied by a shrub/tree/fire.
+3. Each grass/wildflower cell has a 1 in 1000 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
+4. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire.
+5. Each grass/wildflower/shrub has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
+6. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is not occupied by fire.
+7. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
+8. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
+9. When a fire cell is extinguished, the cell returns to bare ground.
+
+**Probability values:** The plant probabilities change constantly because I adjust them myself in `settings.js`. Never change any probability values in the code unless I specifically ask. If the numbers in `settings.js` differ from the numbers in the rules text, `settings.js` is correct.
 
 ### Decisions (answered open questions)
 - **Spreading rolls:** Rules 2, 4, and 6 each have their own setting in the code, with two choices:
