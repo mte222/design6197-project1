@@ -15,7 +15,7 @@ const SETTINGS = {
   TREE_EMERGE_ONE_IN: 2000,    // Rule 5
   TREE_SPREAD_ONE_IN: 10,      // Rule 6
   FIRE_IGNITE_ONE_IN: 50000,   // Rule 7
-  FIRE_EXTINGUISH_ONE_IN: 2,   // Rule 8 (going out; separate roll from spreading)
+  FIRE_EXTINGUISH_ONE_IN: 2.5,   // Rule 8 (going out; separate roll from spreading)
   FIRE_SPREAD_ONE_IN: 2,       // Rule 8 (spreading; separate roll from going out)
 
   // SPREADING MODES, one per spreading rule. Choose one:
