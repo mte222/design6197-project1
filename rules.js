@@ -110,13 +110,13 @@ function runStep(before) {
         }
       }
 
-      // RULE 3: Each grass/wildflower cell has a 1 in 1000 chance of having shrubs
+      // RULE 4: Each grass/wildflower cell has a 1 in 1000 chance of having shrubs
       // emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
       if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE, FIRE])) {
         if (rollOneIn(SETTINGS.SHRUB_EMERGE_ONE_IN)) grow(after, row, col, SHRUB);
       }
 
-      // RULE 4: Each shrub cell has a 1 in 6 chance of a shrub replicating in the
+      // RULE 5: Each shrub cell has a 1 in 6 chance of a shrub replicating in the
       // cell next to it, as long as that cell is not occupied by a tree or fire.
       if (cell === SHRUB) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.SHRUB_SPREAD_MODE)) {
@@ -128,13 +128,13 @@ function runStep(before) {
         }
       }
 
-      // RULE 5: Each grass/wildflower/shrub has a 1 in 2000 chance of having trees
+      // RULE 6: Each grass/wildflower/shrub has a 1 in 2000 chance of having trees
       // emerge from it, as long as it is not bordered by a tree or fire on any side.
       if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE, FIRE])) {
         if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
       }
 
-      // RULE 6: Each tree cell has a 1 in 10 chance of a tree cell replicating
+      // RULE 7: Each tree cell has a 1 in 10 chance of a tree cell replicating
       // in the cell next to it, as long as that cell is not occupied by fire.
       if (cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
@@ -146,13 +146,13 @@ function runStep(before) {
         }
       }
 
-      // RULE 7: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
+      // RULE 8: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
       // (Every shrub and tree cell rolls its own chance each step.)
       if (cell === SHRUB || cell === TREE) {
         if (rollOneIn(SETTINGS.FIRE_IGNITE_ONE_IN)) grow(after, row, col, FIRE);
       }
 
-      // RULE 8: Each step a fire cell has a 50% chance of extinguishing and a 50%
+      // RULE 9: Each step a fire cell has a 50% chance of extinguishing and a 50%
       // chance of replicating in the cell next to it, as long as that cell is not
       // grass/bare ground.
       // (Spreading and going out are two separate rolls: a fire can do both,
@@ -162,7 +162,7 @@ function runStep(before) {
           if (rollOneIn(SETTINGS.FIRE_SPREAD_ONE_IN)) grow(after, r, c, FIRE);
         }
 
-        // RULE 9: When a fire cell is extinguished, the cell returns to bare ground.
+        // RULE 10: When a fire cell is extinguished, the cell returns to bare ground.
         // (Set directly rather than with grow, since bare ground is "smaller" than
         // fire. No other rule can change a fire cell in the same step.)
         if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) after[row][col] = BARE;
