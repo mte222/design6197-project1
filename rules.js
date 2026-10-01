@@ -58,6 +58,28 @@ function hasNeighborOfType(grid, row, col, types) {
   return false;
 }
 
+// Which neighbor cells a fire tries to spread into this step, based on its mode.
+// A fire only ever picks cells it can burn (shrubs and trees). In "one neighbor"
+// mode, off-grid directions are also in the draw, and picking one does nothing.
+function fireTargets(grid, row, col, mode) {
+  const burnable = [];
+  let offGrid = 0;
+  for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
+    const r = row + dRow;
+    const c = col + dCol;
+    if (!isInGrid(grid, r, c)) offGrid++;
+    else if (grid[r][c] === SHRUB || grid[r][c] === TREE) burnable.push([r, c]);
+  }
+  if (mode === "each neighbor") return burnable;
+  if (mode === "one neighbor") {
+    const drawSize = burnable.length + offGrid;
+    if (burnable.length === 0) return [];
+    const pick = Math.floor(Math.random() * drawSize);
+    return pick < burnable.length ? [burnable[pick]] : []; // off-grid pick: nothing
+  }
+  throw new Error('Spreading mode must be "each neighbor" or "one neighbor", but got: ' + mode);
+}
+
 // Changes a cell in the new grid. If more than one rule changes the same cell
 // in the same step, the bigger one wins (fire beats tree, tree beats shrub,
 // shrub beats grass).
@@ -128,6 +150,22 @@ function runStep(before) {
       // (Every shrub and tree cell rolls its own chance each step.)
       if (cell === SHRUB || cell === TREE) {
         if (rollOneIn(SETTINGS.FIRE_IGNITE_ONE_IN)) grow(after, row, col, FIRE);
+      }
+
+      // RULE 8: Each step a fire cell has a 50% chance of extinguishing and a 50%
+      // chance of replicating in the cell next to it, as long as that cell is not
+      // grass/bare ground.
+      // (Spreading and going out are two separate rolls: a fire can do both,
+      // either one, or neither.)
+      if (cell === FIRE) {
+        for (const [r, c] of fireTargets(before, row, col, SETTINGS.FIRE_SPREAD_MODE)) {
+          if (rollOneIn(SETTINGS.FIRE_SPREAD_ONE_IN)) grow(after, r, c, FIRE);
+        }
+
+        // RULE 9: When a fire cell is extinguished, the cell returns to bare ground.
+        // (Set directly rather than with grow, since bare ground is "smaller" than
+        // fire. No other rule can change a fire cell in the same step.)
+        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) after[row][col] = BARE;
       }
     }
   }
