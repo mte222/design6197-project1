@@ -27,7 +27,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 6. Each shrub cell has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
 7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is a shrub.
 8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell for each shrub/tree cell next to it.
-9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
+9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is a shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
 10. When a fire cell is extinguished, the cell becomes burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground.
 
@@ -57,8 +57,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
   - **Which neighbors count:** Only shrubs and trees (equally). Fire, burned ground, bare ground, and grass don't count.
   - **Edges:** Scaled up so edge and corner cells can reach the same maximum as a full set of 8. The count is multiplied by 8 ÷ (number of real neighbors): e.g. an edge cell with 5 of 5 shrub/tree neighbors gets 8 in 50,000; a corner cell with 3 of 3 also gets 8 in 50,000.
 - **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
-- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
-- **Rule 9, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
+- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs, trees, and now grass), never bare ground, burned ground, or other fire. If it has none, nothing spreads. *(Grass details pending: see open questions.)*
+- **Rule 9, "each neighbor" mode:** Each shrub/tree/grass neighbor gets its own roll.
 - **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ### Burned ground decisions
