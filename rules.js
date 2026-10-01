@@ -149,9 +149,9 @@ function runStep(before) {
         }
       }
 
-      // RULE 6: Each grass/wildflower/shrub has a 1 in 2000 chance of having trees
-      // emerge from it, as long as it is not bordered by a tree or fire on any side.
-      if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE, FIRE])) {
+      // RULE 6: Each shrub cell has a 1 in 2000 chance of having trees emerge from
+      // it, as long as it is not bordered by a tree or fire on any side.
+      if (cell === SHRUB && !hasNeighborOfType(before, row, col, [TREE, FIRE])) {
         if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
       }
 

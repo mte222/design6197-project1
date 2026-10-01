@@ -24,7 +24,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 3. Grass has a 1 in 4 chance of spreading from shrubs/trees cells to the cells next to them.
 4. Each grass/wildflower cell has a 1 in 1000 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
 5. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire or bare ground.
-6. Each grass/wildflower/shrub has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
+6. Each shrub cell has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
 7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is a shrub.
 8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
