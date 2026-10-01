@@ -18,3 +18,11 @@ function createStartingGrid(size) {
   grid[center][center] = GRASS;
   return grid;
 }
+
+// ONE STEP
+// Every cell looks at the grid as it was at the start of the step ("before"),
+// and all changes are written into a new grid ("after") that replaces it at the end.
+function runStep(before) {
+  const after = before.map(row => row.slice());
+  return after;
+}

@@ -8,6 +8,17 @@
 </head>
 <body>
   <h1>Successional Forest</h1>
+  <div class="controls">
+    <button id="play">Play</button>
+    <button id="step">Step</button>
+    <button id="reset">Reset</button>
+    <label>
+      Speed
+      <input id="speed" type="range" min="1" max="30" value="5">
+      <span id="speed-label">5</span> steps/sec
+    </label>
+    <span class="counter">Step: <span id="step-count">0</span></span>
+  </div>
   <canvas id="grid"></canvas>
 
   <script src="settings.js"></script>
