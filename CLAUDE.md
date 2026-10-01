@@ -62,6 +62,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Rule 9, grass:** For a grass target, the 1 in 3 catch chance *replaces* the 50% spread roll (it is not on top of it). Shrubs and trees still use the 50% roll.
 - **Rule 9, grass that doesn't catch:** That uses up the fire's spreading turn. It does not pick again.
 - **Rule 8 is unchanged:** grass never ignites on its own, and grass neighbors don't count toward ignition.
+- **Rule 10, fire remembers what it was:** A fire's kind is set by what the cell was when it caught fire (grass, or shrub/tree). Both kinds behave the same in every rule, and "fire" in any rule means either kind; only what they leave behind differs. Fires that start on their own (rule 8) are always the shrub/tree kind.
+- **Rule 10, display:** Both kinds of fire use the same color, and the readout shows them together as "Fire."
 - **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ### Burned ground decisions

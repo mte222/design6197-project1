@@ -6,10 +6,22 @@ const BARE = 0;
 const GRASS = 1;
 const SHRUB = 2;
 const TREE = 3;
+// Fire comes in two kinds that behave the same everywhere, except for what they
+// leave behind when they go out (rule 10). The kind is set by what the cell was
+// when it caught fire: a shrub/tree becomes FIRE, grass becomes GRASS_FIRE.
+// Both beat every plant in the tiebreaker. They never compete with each other,
+// because a cell's kind of fire is decided by what that cell was.
 const FIRE = 4;
+const GRASS_FIRE = 5;
+const FIRE_TYPES = [FIRE, GRASS_FIRE];
 // Burned ground is never part of the tiebreaker: nothing can spread into it.
 // Giving it the biggest number means grow can never overwrite it.
-const BURNED = 5;
+const BURNED = 6;
+
+// Is this cell on fire (either kind)?
+function isFire(type) {
+  return type === FIRE || type === GRASS_FIRE;
+}
 
 // RULE 1: Starting point.
 // The map starts as a grid full of bare ground, with grass in the center cell.
@@ -123,7 +135,7 @@ function runStep(before) {
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
           const target = before[r][c];
-          if (target === SHRUB || target === TREE || target === FIRE) continue;
+          if (target === SHRUB || target === TREE || isFire(target)) continue;
           if (target === BURNED) continue; // Nothing can spread into burned ground.
           if (rollOneIn(SETTINGS.GRASS_SPREAD_ONE_IN)) grow(after, r, c, GRASS);
         }
@@ -145,7 +157,7 @@ function runStep(before) {
 
       // RULE 4: Each grass/wildflower cell has a 1 in 1000 chance of having shrubs
       // emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
-      if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE, FIRE])) {
+      if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE, ...FIRE_TYPES])) {
         if (rollOneIn(SETTINGS.SHRUB_EMERGE_ONE_IN)) grow(after, row, col, SHRUB);
       }
 
@@ -158,7 +170,7 @@ function runStep(before) {
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
           const target = before[r][c];
-          if (target === TREE || target === FIRE || target === BARE) continue;
+          if (target === TREE || isFire(target) || target === BARE) continue;
           if (target === BURNED) continue; // Nothing can spread into burned ground.
           if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
         }
@@ -166,7 +178,7 @@ function runStep(before) {
 
       // RULE 6: Each shrub cell has a 1 in 2000 chance of having trees emerge from
       // it, as long as it is not bordered by a tree or fire on any side.
-      if (cell === SHRUB && !hasNeighborOfType(before, row, col, [TREE, FIRE])) {
+      if (cell === SHRUB && !hasNeighborOfType(before, row, col, [TREE, ...FIRE_TYPES])) {
         if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
       }
 
@@ -185,7 +197,8 @@ function runStep(before) {
       // RULE 8: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell
       // for each shrub/tree cell next to it.
       // (Only shrub/tree neighbors count. Edge and corner cells are scaled up by
-      // 8 / their number of real neighbors, so a full edge counts like a full 8.)
+      // 8 / their number of real neighbors, so a full edge counts like a full 8.
+      // Only shrubs/trees ignite, so this is always the shrub/tree kind of fire.)
       if (cell === SHRUB || cell === TREE) {
         const { matching, real } = countNeighbors(before, row, col, [SHRUB, TREE]);
         const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN;
@@ -197,22 +210,30 @@ function runStep(before) {
       // shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
       // (Spreading and going out are two separate rolls: a fire can do both,
       // either one, or neither. For grass, the 1 in 3 roll replaces the 50% roll.
-      // If grass doesn't catch, the fire's spreading turn is used up.)
-      if (cell === FIRE) {
+      // If grass doesn't catch, the fire's spreading turn is used up.
+      // The new fire's kind depends on what it spreads into: grass makes a grass
+      // fire, a shrub or tree makes a shrub/tree fire.)
+      if (isFire(cell)) {
         for (const [r, c] of fireTargets(before, row, col, SETTINGS.FIRE_SPREAD_MODE)) {
-          const chance = before[r][c] === GRASS
+          const intoGrass = before[r][c] === GRASS;
+          const chance = intoGrass
             ? SETTINGS.FIRE_GRASS_CATCH_ONE_IN
             : SETTINGS.FIRE_SPREAD_ONE_IN;
-          if (rollOneIn(chance)) grow(after, r, c, FIRE);
+          if (rollOneIn(chance)) grow(after, r, c, intoGrass ? GRASS_FIRE : FIRE);
         }
 
-        // RULE 10: When a fire cell is extinguished, the cell becomes burned ground.
+        // RULE 10: When a fire cell that was grass is extinguished, it returns to
+        // bare ground. When a fire cell that was a shrub or tree is extinguished,
+        // it becomes burned ground.
         // (Set directly. No other rule can change a fire cell in the same step.)
-        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) after[row][col] = BURNED;
+        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) {
+          after[row][col] = cell === GRASS_FIRE ? BARE : BURNED;
+        }
       }
 
       // RULE 11: Each burned ground cell has a 1 in 50 chance each step of becoming
-      // bare ground.
+      // bare ground. (Since burned grass goes straight to bare ground, this now only
+      // applies to burned shrubs and trees.)
       // (Set directly. Nothing can spread into or emerge from burned ground.)
       if (cell === BURNED) {
         if (rollOneIn(SETTINGS.BURNED_TO_BARE_ONE_IN)) after[row][col] = BARE;

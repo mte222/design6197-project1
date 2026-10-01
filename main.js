@@ -17,17 +17,19 @@ const COLOR_FOR_TYPE = {
   [SHRUB]: SETTINGS.COLORS.SHRUB,
   [TREE]: SETTINGS.COLORS.TREE,
   [FIRE]: SETTINGS.COLORS.FIRE,
+  [GRASS_FIRE]: SETTINGS.COLORS.FIRE, // both kinds of fire look the same
   [BURNED]: SETTINGS.COLORS.BURNED,
 };
 
-// Names for the percentage readout, in the order shown.
+// Names for the percentage readout, in the order shown. Each entry lists the
+// cell types it adds up (both kinds of fire count together as "Fire").
 const READOUT_LABELS = [
-  [BARE, "Bare"],
-  [GRASS, "Grass"],
-  [SHRUB, "Shrub"],
-  [TREE, "Tree"],
-  [FIRE, "Fire"],
-  [BURNED, "Burned"],
+  [[BARE], "Bare"],
+  [[GRASS], "Grass"],
+  [[SHRUB], "Shrub"],
+  [[TREE], "Tree"],
+  [FIRE_TYPES, "Fire"],
+  [[BURNED], "Burned"],
 ];
 
 let grid = createStartingGrid(SETTINGS.GRID_SIZE);
@@ -56,9 +58,10 @@ function drawGrid() {
 // Shows what percentage of the map each cell type covers.
 function updateReadout(counts) {
   const total = grid.length * grid[0].length;
-  readout.innerHTML = READOUT_LABELS.map(([type, name]) => {
-    const percent = ((counts[type] || 0) / total * 100).toFixed(1);
-    return `<span><span class="swatch" style="background:${COLOR_FOR_TYPE[type]}"></span>${name} ${percent}%</span>`;
+  readout.innerHTML = READOUT_LABELS.map(([types, name]) => {
+    const count = types.reduce((sum, type) => sum + (counts[type] || 0), 0);
+    const percent = (count / total * 100).toFixed(1);
+    return `<span><span class="swatch" style="background:${COLOR_FOR_TYPE[types[0]]}"></span>${name} ${percent}%</span>`;
   }).join("");
 }
 
