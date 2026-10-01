@@ -47,6 +47,16 @@ function directionsToTry(mode) {
   throw new Error('Spreading mode must be "each neighbor" or "one neighbor", but got: ' + mode);
 }
 
+// Does this cell have any of the given types among its 8 neighbors?
+function hasNeighborOfType(grid, row, col, types) {
+  for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
+    const r = row + dRow;
+    const c = col + dCol;
+    if (isInGrid(grid, r, c) && types.includes(grid[r][c])) return true;
+  }
+  return false;
+}
+
 // Changes a cell in the new grid. If more than one rule changes the same cell
 // in the same step, the bigger plant wins (tree beats shrub, shrub beats grass).
 function grow(after, row, col, type) {
@@ -74,6 +84,12 @@ function runStep(before) {
           if (target === SHRUB || target === TREE) continue;
           if (rollOneIn(SETTINGS.GRASS_SPREAD_ONE_IN)) grow(after, r, c, GRASS);
         }
+      }
+
+      // RULE 3: Each grass/wildflower cell has a 1 in 100 chance of having shrubs
+      // emerge from it, as long as it is not bordered by a shrub/tree on any side.
+      if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE])) {
+        if (rollOneIn(SETTINGS.SHRUB_EMERGE_ONE_IN)) grow(after, row, col, SHRUB);
       }
     }
   }
