@@ -37,9 +37,16 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
   - "one neighbor": the cell picks one random neighbor and rolls once.
   These are settings in the code only, with no on-screen control. I want to test both.
 - **Update timing:** All cells look at the grid as it was at the start of the step, then all changes are applied together. A cell that changes during a step can't act until the next step.
-- **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: tree beats shrub, shrub beats grass.
+- **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: fire beats tree, tree beats shrub, shrub beats grass.
 - **Grid edges:** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
 - **"One neighbor" mode at edges:** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
+
+### Fire decisions
+- **Rule 7, ignition:** Every shrub and tree cell rolls its own chance each step.
+- **Rule 8, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
+- **Rule 8, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
+- **Rule 8, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
+- **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ## Prototype scope
 - Shows the grid animating step by step.
