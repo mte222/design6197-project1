@@ -28,8 +28,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is a shrub.
 8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell for each shrub/tree cell next to it.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is a shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
-10. When a fire cell is extinguished, the cell becomes burned ground.
-11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground.
+10. When a fire cell that was grass is extinguished, it returns to bare ground. When a fire cell that was a shrub or tree is extinguished, it becomes burned ground.
+11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
