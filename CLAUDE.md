@@ -76,6 +76,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - Shows the grid animating step by step.
 - Controls: play/pause, step forward one step, reset, speed.
 - A step counter.
+- A readout of what percentage of the map each cell type covers.
 - Simple, clear colors for each cell type.
 - Nothing else until I ask. Keep it small and working.
 

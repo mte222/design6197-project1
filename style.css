@@ -41,6 +41,23 @@ h1 {
   font-weight: 600;
 }
 
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.readout .swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border: 1px solid #888;
+}
+
 #grid {
   border: 1px solid #888;
   image-rendering: pixelated;
