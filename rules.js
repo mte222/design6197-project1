@@ -123,6 +123,12 @@ function runStep(before) {
           if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
         }
       }
+
+      // RULE 7: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
+      // (Every shrub and tree cell rolls its own chance each step.)
+      if (cell === SHRUB || cell === TREE) {
+        if (rollOneIn(SETTINGS.FIRE_IGNITE_ONE_IN)) grow(after, row, col, FIRE);
+      }
     }
   }
 
