@@ -1,0 +1,21 @@
+# Files Git should ignore (not track or save in commits)
+
+# Operating system clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Code editor settings
+.vscode/
+.idea/
+*.swp
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Node.js packages (not used now, but common if tools are added later)
+node_modules/
+
+# Claude Code local settings (personal to this computer)
+.claude/settings.local.json
