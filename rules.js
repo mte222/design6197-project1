@@ -83,6 +83,21 @@ function fireTargets(grid, row, col, mode) {
   throw new Error('Spreading mode must be "each neighbor" or "one neighbor", but got: ' + mode);
 }
 
+// How many of this cell's neighbors are one of the given types, and how many
+// real (on-grid) neighbors it has: 8 in the middle, 5 on an edge, 3 in a corner.
+function countNeighbors(grid, row, col, types) {
+  let matching = 0;
+  let real = 0;
+  for (const [dRow, dCol] of NEIGHBOR_DIRECTIONS) {
+    const r = row + dRow;
+    const c = col + dCol;
+    if (!isInGrid(grid, r, c)) continue;
+    real++;
+    if (types.includes(grid[r][c])) matching++;
+  }
+  return { matching, real };
+}
+
 // Changes a cell in the new grid. If more than one rule changes the same cell
 // in the same step, the bigger one wins (fire beats tree, tree beats shrub,
 // shrub beats grass).
@@ -167,10 +182,14 @@ function runStep(before) {
         }
       }
 
-      // RULE 8: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
-      // (Every shrub and tree cell rolls its own chance each step.)
+      // RULE 8: A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell
+      // for each shrub/tree cell next to it.
+      // (Only shrub/tree neighbors count. Edge and corner cells are scaled up by
+      // 8 / their number of real neighbors, so a full edge counts like a full 8.)
       if (cell === SHRUB || cell === TREE) {
-        if (rollOneIn(SETTINGS.FIRE_IGNITE_ONE_IN)) grow(after, row, col, FIRE);
+        const { matching, real } = countNeighbors(before, row, col, [SHRUB, TREE]);
+        const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN;
+        if (Math.random() < chance) grow(after, row, col, FIRE);
       }
 
       // RULE 9: Each step a fire cell has a 50% chance of extinguishing and a 50%

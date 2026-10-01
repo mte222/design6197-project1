@@ -15,7 +15,7 @@ const SETTINGS = {
   SHRUB_SPREAD_ONE_IN: 20,     // Rule 5
   TREE_EMERGE_ONE_IN: 2000,    // Rule 6
   TREE_SPREAD_ONE_IN: 30,      // Rule 7
-  FIRE_IGNITE_ONE_IN: 50000,   // Rule 8
+  FIRE_IGNITE_ONE_IN: 50000,   // Rule 8 (chance per shrub/tree neighbor)
   FIRE_EXTINGUISH_ONE_IN: 2.4,   // Rule 9 (going out; separate roll from spreading)
   FIRE_SPREAD_ONE_IN: 2,       // Rule 9 (spreading; separate roll from going out)
   BURNED_TO_BARE_ONE_IN: 50,   // Rule 11

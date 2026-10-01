@@ -54,6 +54,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 
 ### Fire decisions
 - **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step. The chance grows with the number of shrub/tree neighbors: 1 neighbor = 1 in 50,000, 8 neighbors = 8 in 50,000, no shrub/tree neighbors = can't ignite.
+  - **Which neighbors count:** Only shrubs and trees (equally). Fire, burned ground, bare ground, and grass don't count.
+  - **Edges:** Scaled up so edge and corner cells can reach the same maximum as a full set of 8. The count is multiplied by 8 ÷ (number of real neighbors): e.g. an edge cell with 5 of 5 shrub/tree neighbors gets 8 in 50,000; a corner cell with 3 of 3 also gets 8 in 50,000.
 - **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
 - **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
 - **Rule 9, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
