@@ -42,29 +42,33 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
   These are settings in the code only, with no on-screen control. I want to test both.
 - **Update timing:** All cells look at the grid as it was at the start of the step, then all changes are applied together. A cell that changes during a step can't act until the next step.
 - **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: fire beats tree, tree beats shrub, shrub beats grass.
-- **Grid edges:** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
-- **"One neighbor" mode at edges:** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
+- **Wrap-around edges (setting `WRAP_EDGES` in `settings.js`):**
+  - **On (`true`):** The left edge connects to the right and the top connects to the bottom, so every cell has exactly 8 neighbors. This applies to every rule that looks at neighbors (spreading, emerging, fire ignition, fire spreading). There are no edge cells, so none of the edge choices below come into play.
+  - **Off (`false`):** The grid behaves as it did before wrap-around was added, using all of the edge choices below.
+  - **All edge choices in this file apply only when wrap-around is off.**
+- **Grid edges (wrap off only):** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
+- **"One neighbor" mode at edges (wrap off only):** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
 
 ### Rule 3 decisions (grass spreading from shrubs/trees)
 - **Who rolls:** Every shrub and tree cell does its own rule 3 roll each step.
 - **Where grass can land:** Bare ground only. Rule 3 never replaces a shrub, tree, or fire.
-- **"One neighbor" mode:** Same as the plants: pick any of the 8 directions; if that cell isn't bare ground (or is off the grid), nothing happens.
+- **"One neighbor" mode:** Same as the plants: pick any of the 8 directions; if that cell isn't bare ground (or is off the grid, when wrap is off), nothing happens.
 - **Separate from rules 5 and 7:** A shrub or tree makes its rule 3 pick separately from its own spreading pick (rule 5 or 7), so it can do both in one step.
 - **Tiebreaker:** No conflict is possible (rule 3 only targets bare ground, where nothing else but grass can land), so the existing order stays.
 
 ### Fire decisions
 - **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step. The chance grows with the number of shrub/tree neighbors: 1 neighbor = 1 in 50,000, 8 neighbors = 8 in 50,000, no shrub/tree neighbors = can't ignite.
   - **Which neighbors count:** Only shrubs and trees (equally). Fire, burned ground, bare ground, and grass don't count.
-  - **Edges:** Scaled up so edge and corner cells can reach the same maximum as a full set of 8. The count is multiplied by 8 ÷ (number of real neighbors): e.g. an edge cell with 5 of 5 shrub/tree neighbors gets 8 in 50,000; a corner cell with 3 of 3 also gets 8 in 50,000.
+  - **Edges (wrap off only):** Scaled up so edge and corner cells can reach the same maximum as a full set of 8. The count is multiplied by 8 ÷ (number of real neighbors): e.g. an edge cell with 5 of 5 shrub/tree neighbors gets 8 in 50,000; a corner cell with 3 of 3 also gets 8 in 50,000.
 - **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
-- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs, trees, and now grass), never bare ground, burned ground, or other fire. If it has none, nothing spreads. Off-grid directions are still wasted picks at the edges.
+- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs, trees, and now grass), never bare ground, burned ground, or other fire. If it has none, nothing spreads. Off-grid directions are still wasted picks at the edges (wrap off only).
 - **Rule 9, "each neighbor" mode:** Each shrub/tree/grass neighbor gets its own roll.
 - **Rule 9, grass:** For a grass target, the 1 in 3 catch chance *replaces* the 50% spread roll (it is not on top of it). Shrubs and trees still use the 50% roll.
 - **Rule 9, grass that doesn't catch:** That uses up the fire's spreading turn. It does not pick again.
 - **Rule 8 is unchanged:** grass never ignites on its own, and grass neighbors don't count toward ignition.
 - **Rule 10, fire remembers what it was:** A fire's kind is set by what the cell was when it caught fire (grass, or shrub/tree). Both kinds behave the same in every rule, and "fire" in any rule means either kind; only what they leave behind differs. Fires that start on their own (rule 8) are always the shrub/tree kind.
 - **Rule 10, display:** Both kinds of fire use the same color, and the readout shows them together as "Fire."
-- **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
+- **Fire at grid edges (wrap off only):** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ### Burned ground decisions
 - **Rule 11:** A random 1 in 50 chance each step (not a fixed timer).
