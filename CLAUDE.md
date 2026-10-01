@@ -59,6 +59,14 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Rule 9, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
 - **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
+### Burned ground decisions
+- **Rule 11:** A random 1 in 50 chance each step (not a fixed timer).
+- **Nothing spreads into burned ground,** under any rule (including rule 2, even though its list doesn't name burned ground).
+- **Burned ground does not block emergence next to it.** Rules 4 and 6 only list shrub/tree/fire neighbors as blockers.
+- **Tiebreaker:** No conflict is possible (nothing can target fire cells or burned ground), so the existing order stays.
+- **Rule 7, "one neighbor" mode:** If the tree picks a cell that isn't a shrub, nothing happens.
+- **Color:** charcoal.
+
 ## Prototype scope
 - Shows the grid animating step by step.
 - Controls: play/pause, step forward one step, reset, speed.
