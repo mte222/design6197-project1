@@ -57,8 +57,11 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
   - **Which neighbors count:** Only shrubs and trees (equally). Fire, burned ground, bare ground, and grass don't count.
   - **Edges:** Scaled up so edge and corner cells can reach the same maximum as a full set of 8. The count is multiplied by 8 ÷ (number of real neighbors): e.g. an edge cell with 5 of 5 shrub/tree neighbors gets 8 in 50,000; a corner cell with 3 of 3 also gets 8 in 50,000.
 - **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
-- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs, trees, and now grass), never bare ground, burned ground, or other fire. If it has none, nothing spreads. *(Grass details pending: see open questions.)*
+- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs, trees, and now grass), never bare ground, burned ground, or other fire. If it has none, nothing spreads. Off-grid directions are still wasted picks at the edges.
 - **Rule 9, "each neighbor" mode:** Each shrub/tree/grass neighbor gets its own roll.
+- **Rule 9, grass:** For a grass target, the 1 in 3 catch chance *replaces* the 50% spread roll (it is not on top of it). Shrubs and trees still use the 50% roll.
+- **Rule 9, grass that doesn't catch:** That uses up the fire's spreading turn. It does not pick again.
+- **Rule 8 is unchanged:** grass never ignites on its own, and grass neighbors don't count toward ignition.
 - **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ### Burned ground decisions

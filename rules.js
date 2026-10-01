@@ -62,8 +62,8 @@ function hasNeighborOfType(grid, row, col, types) {
 }
 
 // Which neighbor cells a fire tries to spread into this step, based on its mode.
-// A fire only ever picks cells it can burn (shrubs and trees). In "one neighbor"
-// mode, off-grid directions are also in the draw, and picking one does nothing.
+// A fire only ever picks cells it can burn (shrubs, trees, and grass). In "one
+// neighbor" mode, off-grid directions are also in the draw, and picking one does nothing.
 function fireTargets(grid, row, col, mode) {
   const burnable = [];
   let offGrid = 0;
@@ -71,7 +71,7 @@ function fireTargets(grid, row, col, mode) {
     const r = row + dRow;
     const c = col + dCol;
     if (!isInGrid(grid, r, c)) offGrid++;
-    else if (grid[r][c] === SHRUB || grid[r][c] === TREE) burnable.push([r, c]);
+    else if (grid[r][c] === SHRUB || grid[r][c] === TREE || grid[r][c] === GRASS) burnable.push([r, c]);
   }
   if (mode === "each neighbor") return burnable;
   if (mode === "one neighbor") {
@@ -193,13 +193,17 @@ function runStep(before) {
       }
 
       // RULE 9: Each step a fire cell has a 50% chance of extinguishing and a 50%
-      // chance of replicating in the cell next to it, as long as that cell is not
-      // grass/bare ground.
+      // chance of replicating in the cell next to it, as long as that cell is a
+      // shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
       // (Spreading and going out are two separate rolls: a fire can do both,
-      // either one, or neither.)
+      // either one, or neither. For grass, the 1 in 3 roll replaces the 50% roll.
+      // If grass doesn't catch, the fire's spreading turn is used up.)
       if (cell === FIRE) {
         for (const [r, c] of fireTargets(before, row, col, SETTINGS.FIRE_SPREAD_MODE)) {
-          if (rollOneIn(SETTINGS.FIRE_SPREAD_ONE_IN)) grow(after, r, c, FIRE);
+          const chance = before[r][c] === GRASS
+            ? SETTINGS.FIRE_GRASS_CATCH_ONE_IN
+            : SETTINGS.FIRE_SPREAD_ONE_IN;
+          if (rollOneIn(chance)) grow(after, r, c, FIRE);
         }
 
         // RULE 10: When a fire cell is extinguished, the cell becomes burned ground.

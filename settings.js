@@ -18,6 +18,7 @@ const SETTINGS = {
   FIRE_IGNITE_ONE_IN: 50000,   // Rule 8 (chance per shrub/tree neighbor)
   FIRE_EXTINGUISH_ONE_IN: 2,   // Rule 9 (going out; separate roll from spreading)
   FIRE_SPREAD_ONE_IN: 2,       // Rule 9 (spreading; separate roll from going out)
+  FIRE_GRASS_CATCH_ONE_IN: 3,  // Rule 9 (spreading into grass; used instead of FIRE_SPREAD_ONE_IN)
   BURNED_TO_BARE_ONE_IN: 50,   // Rule 11
 
   // SPREADING MODES, one per spreading rule. Choose one:
