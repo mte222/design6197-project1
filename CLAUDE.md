@@ -26,11 +26,14 @@ Cell types: bare ground, grass/wildflowers, shrub, tree.
 5. Each grass/wildflower/shrub cell has a 1 in 200 chance of having trees emerge from it, as long as it is not bordered by a tree on any side.
 6. Each tree cell has a 1 in 4 chance of a tree cell replicating in the cell next to it.
 
-### Open questions (ask me before deciding these)
-- **Spreading rolls:** In rules 2, 4, and 6, does each neighboring cell get its own roll, or does the cell pick one random neighbor and roll once?
-- **Update timing:** Do all cells look at the grid as it was at the start of the step and then change together, or do changes happen one cell at a time during the step?
-- **Conflicts:** If two rules try to change the same cell in the same step (for example, a shrub and a tree both spreading into it), which wins?
-- **Grid edges:** Do plants stop at the edge, or wrap around to the other side?
+### Decisions (answered open questions)
+- **Spreading rolls:** Rules 2, 4, and 6 each have their own setting in the code, with two choices:
+  - "each neighbor": every neighboring cell gets its own roll.
+  - "one neighbor": the cell picks one random neighbor and rolls once.
+  These are settings in the code only, with no on-screen control. I want to test both.
+- **Update timing:** All cells look at the grid as it was at the start of the step, then all changes are applied together. A cell that changes during a step can't act until the next step.
+- **Conflicts:** If more than one rule tries to change the same cell in the same step, the bigger plant wins: tree beats shrub, shrub beats grass.
+- **Grid edges:** Plants stop at the edge (no wrapping). Edge cells have 5 neighbors and corner cells have 3.
 
 ## Prototype scope
 - Shows the grid animating step by step.
