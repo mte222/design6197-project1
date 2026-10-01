@@ -26,7 +26,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 5. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire or bare ground.
 6. Each shrub cell has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
 7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is a shrub.
-8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
+8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell for each shrub/tree cell next to it.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
 10. When a fire cell is extinguished, the cell becomes burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground.
@@ -53,7 +53,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Tiebreaker:** No conflict is possible (rule 3 only targets bare ground, where nothing else but grass can land), so the existing order stays.
 
 ### Fire decisions
-- **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step.
+- **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step. The chance grows with the number of shrub/tree neighbors: 1 neighbor = 1 in 50,000, 8 neighbors = 8 in 50,000, no shrub/tree neighbors = can't ignite.
 - **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
 - **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
 - **Rule 9, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
