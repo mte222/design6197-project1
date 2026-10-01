@@ -109,6 +109,17 @@ function runStep(before) {
       if ((cell === GRASS || cell === SHRUB) && !hasNeighborOfType(before, row, col, [TREE])) {
         if (rollOneIn(SETTINGS.TREE_EMERGE_ONE_IN)) grow(after, row, col, TREE);
       }
+
+      // RULE 6: Each tree cell has a 1 in 4 chance of a tree cell replicating
+      // in the cell next to it.
+      if (cell === TREE) {
+        for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
+          const r = row + dRow;
+          const c = col + dCol;
+          if (!isInGrid(before, r, c)) continue;
+          if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
+        }
+      }
     }
   }
 

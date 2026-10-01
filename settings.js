@@ -13,6 +13,7 @@ const SETTINGS = {
   SHRUB_EMERGE_ONE_IN: 100,   // Rule 3
   SHRUB_SPREAD_ONE_IN: 3,     // Rule 4
   TREE_EMERGE_ONE_IN: 200,    // Rule 5
+  TREE_SPREAD_ONE_IN: 4,      // Rule 6
 
   // SPREADING MODES, one per spreading rule. Choose one:
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.
@@ -20,6 +21,7 @@ const SETTINGS = {
   //                     If it points off the edge of the grid, nothing happens.
   GRASS_SPREAD_MODE: "one neighbor", // Rule 2
   SHRUB_SPREAD_MODE: "one neighbor", // Rule 4
+  TREE_SPREAD_MODE: "one neighbor",  // Rule 6
 
   // Colors for each cell type.
   COLORS: {
