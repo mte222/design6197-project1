@@ -151,15 +151,13 @@ function runStep(before) {
       }
 
       // RULE 7: Each tree cell has a 1 in 10 chance of a tree cell replicating
-      // in the cell next to it, as long as that cell is not occupied by fire or
-      // bare ground.
+      // in the cell next to it, as long as that cell is a shrub.
       if (cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
-          const target = before[r][c];
-          if (target === FIRE || target === BARE) continue;
+          if (before[r][c] !== SHRUB) continue;
           if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
         }
       }
