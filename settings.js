@@ -18,6 +18,7 @@ const SETTINGS = {
   FIRE_IGNITE_ONE_IN: 50000,   // Rule 8
   FIRE_EXTINGUISH_ONE_IN: 2.2,   // Rule 9 (going out; separate roll from spreading)
   FIRE_SPREAD_ONE_IN: 2,       // Rule 9 (spreading; separate roll from going out)
+  BURNED_TO_BARE_ONE_IN: 50,   // Rule 11
 
   // SPREADING MODES, one per spreading rule. Choose one:
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.
@@ -38,5 +39,6 @@ const SETTINGS = {
     SHRUB: "#4f9a3a", // medium green
     TREE: "#1f5226",  // dark green
     FIRE: "#ff5a1f",  // bright orange-red
+    BURNED: "#3a3532", // charcoal
   },
 };

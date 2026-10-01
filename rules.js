@@ -7,6 +7,9 @@ const GRASS = 1;
 const SHRUB = 2;
 const TREE = 3;
 const FIRE = 4;
+// Burned ground is never part of the tiebreaker: nothing can spread into it.
+// Giving it the biggest number means grow can never overwrite it.
+const BURNED = 5;
 
 // RULE 1: Starting point.
 // The map starts as a grid full of bare ground, with grass in the center cell.
@@ -106,6 +109,7 @@ function runStep(before) {
           if (!isInGrid(before, r, c)) continue;
           const target = before[r][c];
           if (target === SHRUB || target === TREE || target === FIRE) continue;
+          if (target === BURNED) continue; // Nothing can spread into burned ground.
           if (rollOneIn(SETTINGS.GRASS_SPREAD_ONE_IN)) grow(after, r, c, GRASS);
         }
       }
@@ -140,6 +144,7 @@ function runStep(before) {
           if (!isInGrid(before, r, c)) continue;
           const target = before[r][c];
           if (target === TREE || target === FIRE || target === BARE) continue;
+          if (target === BURNED) continue; // Nothing can spread into burned ground.
           if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
         }
       }
@@ -178,10 +183,16 @@ function runStep(before) {
           if (rollOneIn(SETTINGS.FIRE_SPREAD_ONE_IN)) grow(after, r, c, FIRE);
         }
 
-        // RULE 10: When a fire cell is extinguished, the cell returns to bare ground.
-        // (Set directly rather than with grow, since bare ground is "smaller" than
-        // fire. No other rule can change a fire cell in the same step.)
-        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) after[row][col] = BARE;
+        // RULE 10: When a fire cell is extinguished, the cell becomes burned ground.
+        // (Set directly. No other rule can change a fire cell in the same step.)
+        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) after[row][col] = BURNED;
+      }
+
+      // RULE 11: Each burned ground cell has a 1 in 50 chance each step of becoming
+      // bare ground.
+      // (Set directly. Nothing can spread into or emerge from burned ground.)
+      if (cell === BURNED) {
+        if (rollOneIn(SETTINGS.BURNED_TO_BARE_ONE_IN)) after[row][col] = BARE;
       }
     }
   }
