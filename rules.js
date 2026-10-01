@@ -117,13 +117,15 @@ function runStep(before) {
       }
 
       // RULE 5: Each shrub cell has a 1 in 6 chance of a shrub replicating in the
-      // cell next to it, as long as that cell is not occupied by a tree or fire.
+      // cell next to it, as long as that cell is not occupied by a tree or fire or
+      // bare ground.
       if (cell === SHRUB) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.SHRUB_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
-          if (before[r][c] === TREE || before[r][c] === FIRE) continue;
+          const target = before[r][c];
+          if (target === TREE || target === FIRE || target === BARE) continue;
           if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
         }
       }
@@ -135,13 +137,15 @@ function runStep(before) {
       }
 
       // RULE 7: Each tree cell has a 1 in 10 chance of a tree cell replicating
-      // in the cell next to it, as long as that cell is not occupied by fire.
+      // in the cell next to it, as long as that cell is not occupied by fire or
+      // bare ground.
       if (cell === TREE) {
         for (const [dRow, dCol] of directionsToTry(SETTINGS.TREE_SPREAD_MODE)) {
           const r = row + dRow;
           const c = col + dCol;
           if (!isInGrid(before, r, c)) continue;
-          if (before[r][c] === FIRE) continue;
+          const target = before[r][c];
+          if (target === FIRE || target === BARE) continue;
           if (rollOneIn(SETTINGS.TREE_SPREAD_ONE_IN)) grow(after, r, c, TREE);
         }
       }
