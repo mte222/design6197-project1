@@ -21,18 +21,19 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 
 1. Starting point: Map starts with grass in center cell of grid full of bare ground cells. "Next to" is considered direct border as well as diagonal.
 2. Grass or wildflowers have a 1 in 2 chance of spreading next to grass/wildflowers, as long as that cell is not occupied by a shrub/tree/fire.
-3. Each grass/wildflower cell has a 1 in 1000 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
-4. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire.
-5. Each grass/wildflower/shrub has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
-6. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is not occupied by fire.
-7. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
-8. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
-9. When a fire cell is extinguished, the cell returns to bare ground.
+3. Grass has a 1 in 4 chance of spreading from shrubs/trees cells to the cells next to them.
+4. Each grass/wildflower cell has a 1 in 1000 chance of having shrubs emerge from it, as long as it is not bordered by a shrub/tree/fire on any side.
+5. Each shrub cell has a 1 in 6 chance of a shrub replicating in the cell next to it, as long as that cell is not occupied by a tree or fire or bare ground.
+6. Each grass/wildflower/shrub has a 1 in 2000 chance of having trees emerge from it, as long as it is not bordered by a tree or fire on any side.
+7. Each tree cell has a 1 in 10 chance of a tree cell replicating in the cell next to it, as long as that cell is not occupied by fire or bare ground.
+8. A fire has a 1 in 50,000 chance of igniting on a shrub/tree cell.
+9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is not grass/bare ground.
+10. When a fire cell is extinguished, the cell returns to bare ground.
 
 **Probability values:** The plant probabilities change constantly because I adjust them myself in `settings.js`. Never change any probability values in the code unless I specifically ask. If the numbers in `settings.js` differ from the numbers in the rules text, `settings.js` is correct.
 
 ### Decisions (answered open questions)
-- **Spreading rolls:** Rules 2, 4, and 6 each have their own setting in the code, with two choices:
+- **Spreading rolls:** Rules 2, 5, and 7 each have their own setting in the code, with two choices:
   - "each neighbor": every neighboring cell gets its own roll.
   - "one neighbor": the cell picks one random neighbor and rolls once.
   These are settings in the code only, with no on-screen control. I want to test both.
@@ -42,10 +43,10 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire.
 - **"One neighbor" mode at edges:** The cell picks from all 8 directions, including spots off the grid. If it picks an off-grid spot, nothing happens that step, so plants on the edge spread a bit less.
 
 ### Fire decisions
-- **Rule 7, ignition:** Every shrub and tree cell rolls its own chance each step.
-- **Rule 8, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
-- **Rule 8, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
-- **Rule 8, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
+- **Rule 8, ignition:** Every shrub and tree cell rolls its own chance each step.
+- **Rule 9, two separate rolls:** Each step, a fire cell rolls once for going out and separately for spreading. It can do both, either one, or neither (keep burning without spreading).
+- **Rule 9, "one neighbor" mode:** The fire picks only from neighbors it can burn (shrubs and trees), never grass, bare ground, or other fire. If it has none, nothing spreads.
+- **Rule 9, "each neighbor" mode:** Each shrub/tree neighbor gets its own roll.
 - **Fire at grid edges:** Fire stops at the edge (no wrapping). In "one neighbor" mode, a fire on the edge also has its off-grid directions added to its draw as wasted picks, so fires at the edge spread a bit less.
 
 ## Prototype scope
