@@ -91,6 +91,18 @@ function runStep(before) {
       if (cell === GRASS && !hasNeighborOfType(before, row, col, [SHRUB, TREE])) {
         if (rollOneIn(SETTINGS.SHRUB_EMERGE_ONE_IN)) grow(after, row, col, SHRUB);
       }
+
+      // RULE 4: Each shrub cell has a 1 in 3 chance of a shrub replicating in the
+      // cell next to it, as long as that cell is not occupied by a tree.
+      if (cell === SHRUB) {
+        for (const [dRow, dCol] of directionsToTry(SETTINGS.SHRUB_SPREAD_MODE)) {
+          const r = row + dRow;
+          const c = col + dCol;
+          if (!isInGrid(before, r, c)) continue;
+          if (before[r][c] === TREE) continue;
+          if (rollOneIn(SETTINGS.SHRUB_SPREAD_ONE_IN)) grow(after, r, c, SHRUB);
+        }
+      }
     }
   }
 
