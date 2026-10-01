@@ -15,7 +15,7 @@ const SETTINGS = {
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.
   //   "one neighbor"  - pick one of the 8 directions at random and roll once.
   //                     If it points off the edge of the grid, nothing happens.
-  GRASS_SPREAD_MODE: "each neighbor", // Rule 2
+  GRASS_SPREAD_MODE: "one neighbor", // Rule 2
 
   // Colors for each cell type.
   COLORS: {
