@@ -99,3 +99,9 @@ I am learning Git through this project.
 - Never run destructive commands (force push, reset --hard, rebase, deleting branches, rewriting history) without asking me and explaining what they would do.
 - For experiments that might not work out, suggest making a branch first.
 - No GitHub or remote setup unless I ask.
+
+### Saved versions (tags)
+- **`v1-stable`**: the version I liked before the firefighting experiments (rules 1–11 with wrap-around edges). It's a permanent bookmark on that commit.
+- To look at it: `git checkout v1-stable` (commit or stash any changes first). Git will say "detached HEAD", which just means I'm looking at a bookmark, not standing on a branch.
+- To go back to normal work afterward: `git switch main` (or whichever branch I was on).
+- To start new work from that version: `git switch -c <new-branch-name> v1-stable`.
