@@ -30,6 +30,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is a shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
 10. When a fire cell that was grass is extinguished, it returns to bare ground. When a fire cell that was a shrub or tree is extinguished, it becomes burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
+12. Firefighting: While the animation is playing, the viewer can drag a brush across the grid to put out fires. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank. The tank holds 50 water and refills 1 water every 2 steps.
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
@@ -77,6 +78,17 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Tiebreaker:** No conflict is possible (nothing can target fire cells or burned ground), so the existing order stays.
 - **Rule 7, "one neighbor" mode:** If the tree picks a cell that isn't a shrub, nothing happens.
 - **Color:** charcoal.
+
+### Firefighting decisions (rule 12)
+- **How:** Hold the mouse button and drag. Every fire cell inside a square brush around the mouse goes out (a single click works too). Brush size is `BRUSH_SIZE` in `settings.js` (5 = a 5×5 square). With wrap-around on, the brush wraps around the edges too.
+- **What it becomes:** Exactly what it was before it caught fire. Grass fire becomes grass, shrub fire becomes shrub, tree fire becomes tree. (Fire now remembers shrub vs. tree; this changes nothing in rules 8–10.)
+- **Water tank:** Each fire cell put out costs 1 water. Sweeping over non-fire cells is free. Tank size is `WATER_TANK_SIZE` and refilling is `WATER_REFILL_EVERY_STEPS` (1 water each time that many steps pass), both in `settings.js`. The tank starts full, and Reset fills it again.
+- **Low water:** If the brush covers more fire than there's water for, the fires closest to the middle of the brush go out first, until the water runs out.
+- **Only while playing:** The brush does nothing while paused.
+- **Timing:** Put-outs happen right away, between steps. On the next step, the cell acts as a normal grass/shrub/tree cell.
+- **On/off:** `FIREFIGHTING` in `settings.js` (true/false). When off, the brush does nothing and the water readout is hidden.
+- **Display:** "Water: 37 / 50" next to the step counter.
+- **No fuel buildup rule yet:** This is to see whether the firefighting paradox appears from rules 1–11 alone.
 
 ## Prototype scope
 - Shows the grid animating step by step.
