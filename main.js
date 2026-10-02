@@ -10,6 +10,8 @@ const speedSlider = document.getElementById("speed");
 const speedLabel = document.getElementById("speed-label");
 const stepCounter = document.getElementById("step-count");
 const readout = document.getElementById("readout");
+const waterDisplay = document.getElementById("water-display");
+const waterAmount = document.getElementById("water");
 
 const COLOR_FOR_TYPE = {
   [BARE]: SETTINGS.COLORS.BARE,
@@ -37,6 +39,7 @@ let grid = createStartingGrid(SETTINGS.GRID_SIZE);
 let stepCount = 0;
 let playing = false;
 let timer = null;
+let water = SETTINGS.WATER_TANK_SIZE; // Rule 12: the tank starts full
 
 canvas.width = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
 canvas.height = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
@@ -53,6 +56,7 @@ function drawGrid() {
     }
   }
   stepCounter.textContent = stepCount;
+  waterAmount.textContent = water;
   updateReadout(counts);
 }
 
@@ -69,6 +73,7 @@ function updateReadout(counts) {
 function stepForward() {
   grid = runStep(grid);
   stepCount++;
+  water = refillWater(water, stepCount);
   drawGrid();
 }
 
@@ -96,11 +101,70 @@ resetButton.addEventListener("click", () => {
   setPlaying(false);
   grid = createStartingGrid(SETTINGS.GRID_SIZE);
   stepCount = 0;
+  water = SETTINGS.WATER_TANK_SIZE;
   drawGrid();
 });
 
 speedSlider.addEventListener("input", () => {
   speedLabel.textContent = speedSlider.value;
 });
+
+// FIREFIGHTING BRUSH (Rule 12)
+// Hold the mouse button and drag across the grid to put out fires. Only works
+// while playing. The rule itself (putOutFires) is in rules.js.
+let brushing = false;
+let lastBrushCell = null;
+
+// Which grid cell is under the mouse, as [row, col]. Accounts for the canvas
+// being shrunk to fit a small window.
+function cellUnderMouse(event) {
+  const box = canvas.getBoundingClientRect();
+  const col = Math.floor((event.clientX - box.left) / box.width * SETTINGS.GRID_SIZE);
+  const row = Math.floor((event.clientY - box.top) / box.height * SETTINGS.GRID_SIZE);
+  return [
+    Math.min(Math.max(row, 0), SETTINGS.GRID_SIZE - 1),
+    Math.min(Math.max(col, 0), SETTINGS.GRID_SIZE - 1),
+  ];
+}
+
+// Brushes every cell along the line from the last mouse position to this one,
+// so a fast drag doesn't skip over cells between mouse updates.
+function brushTo(cell) {
+  const [fromRow, fromCol] = lastBrushCell || cell;
+  const [toRow, toCol] = cell;
+  const steps = Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol), 1);
+  for (let i = 1; i <= steps && water > 0; i++) {
+    const row = Math.round(fromRow + (toRow - fromRow) * i / steps);
+    const col = Math.round(fromCol + (toCol - fromCol) * i / steps);
+    water -= putOutFires(grid, row, col, water);
+  }
+  lastBrushCell = cell;
+  drawGrid();
+}
+
+if (SETTINGS.FIREFIGHTING) {
+  canvas.style.cursor = "crosshair";
+
+  canvas.addEventListener("pointerdown", (event) => {
+    brushing = true;
+    lastBrushCell = null;
+    canvas.setPointerCapture(event.pointerId);
+    if (playing) brushTo(cellUnderMouse(event));
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (!brushing) return;
+    if (!playing) { lastBrushCell = null; return; }
+    brushTo(cellUnderMouse(event));
+  });
+
+  const stopBrushing = () => { brushing = false; lastBrushCell = null; };
+  canvas.addEventListener("pointerup", stopBrushing);
+  canvas.addEventListener("pointercancel", stopBrushing);
+
+  document.getElementById("water-max").textContent = SETTINGS.WATER_TANK_SIZE;
+} else {
+  waterDisplay.hidden = true;
+}
 
 drawGrid();

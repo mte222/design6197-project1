@@ -14,6 +14,14 @@ const SETTINGS = {
   //   false - plants and fire stop at the edge (the original edge choices).
   WRAP_EDGES: true,
 
+  // FIREFIGHTING (Rule 12): true or false.
+  //   true  - while playing, drag on the grid to put out fires.
+  //   false - the brush does nothing and the water readout is hidden.
+  FIREFIGHTING: true,
+  BRUSH_SIZE: 5,               // Rule 12: brush is a square this many cells across
+  WATER_TANK_SIZE: 50,         // Rule 12: most water the tank can hold (1 water = 1 fire cell)
+  WATER_REFILL_EVERY_STEPS: 2, // Rule 12: the tank gains 1 water each time this many steps pass
+
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
   GRASS_FROM_SHRUB_TREE_ONE_IN: 10, // Rule 3

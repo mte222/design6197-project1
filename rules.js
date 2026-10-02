@@ -262,3 +262,40 @@ function runStep(before) {
 
   return after;
 }
+
+// RULE 12: Firefighting. While the animation is playing, the viewer can drag a
+// brush across the grid to put out fires. Each fire cell put out goes back to what
+// it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank.
+// The tank holds 50 water and refills 1 water every 2 steps.
+// (This happens right away, between steps, not inside runStep. If the brush covers
+// more fire than there's water for, the fires closest to the middle go out first.
+// The mouse handling and the "only while playing" check are in main.js.)
+const PLANT_BEFORE_FIRE = { [GRASS_FIRE]: GRASS, [SHRUB_FIRE]: SHRUB, [TREE_FIRE]: TREE };
+
+// Puts out fires in the brush square centered on (row, col), using at most
+// `water`. Changes the grid directly. Returns how much water was used.
+function putOutFires(grid, row, col, water) {
+  const low = -Math.floor((SETTINGS.BRUSH_SIZE - 1) / 2);
+  const high = Math.floor(SETTINGS.BRUSH_SIZE / 2);
+  const fires = [];
+  for (let dRow = low; dRow <= high; dRow++) {
+    for (let dCol = low; dCol <= high; dCol++) {
+      const spot = neighborAt(grid, row, col, dRow, dCol);
+      if (spot && isFire(grid[spot[0]][spot[1]])) {
+        fires.push({ spot, distance: dRow * dRow + dCol * dCol });
+      }
+    }
+  }
+  fires.sort((a, b) => a.distance - b.distance);
+  const used = Math.min(water, fires.length);
+  for (const { spot: [r, c] } of fires.slice(0, used)) {
+    grid[r][c] = PLANT_BEFORE_FIRE[grid[r][c]];
+  }
+  return used;
+}
+
+// The tank gains 1 water each time WATER_REFILL_EVERY_STEPS steps pass, up to full.
+function refillWater(water, stepCount) {
+  if (stepCount % SETTINGS.WATER_REFILL_EVERY_STEPS !== 0) return water;
+  return Math.min(water + 1, SETTINGS.WATER_TANK_SIZE);
+}

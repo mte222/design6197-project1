@@ -61,5 +61,6 @@ h1 {
 #grid {
   border: 1px solid #888;
   image-rendering: pixelated;
+  touch-action: none; /* dragging the firefighting brush shouldn't scroll the page */
   max-width: 100%;
 }
