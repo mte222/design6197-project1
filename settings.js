@@ -30,15 +30,15 @@ const SETTINGS = {
   TREE_EMERGE_ONE_IN: 1000,    // Rule 6
   TREE_SPREAD_ONE_IN: 100,      // Rule 7
   FIRE_IGNITE_ONE_IN: 50000,   // Rule 8 (chance per shrub/tree neighbor)
-  FIRE_EXTINGUISH_ONE_IN: 2.5,   // Rule 9 (going out; separate roll from spreading)
+  FIRE_EXTINGUISH_ONE_IN: 2,   // Rule 9 (going out; separate roll from spreading)
   FIRE_SPREAD_ONE_IN: 2,       // Rule 9 (spreading; separate roll from going out)
   FIRE_GRASS_CATCH_ONE_IN: 3,  // Rule 9 (spreading into grass; used instead of FIRE_SPREAD_ONE_IN)
   BURNED_TO_BARE_ONE_IN: 50,   // Rule 11
 
   // FUEL BUILDUP (Rule 13)
   HEAVY_FUEL_AFTER_STEPS: 500,     // Rule 13: steps without burning before a shrub/tree is heavy fuel
-  HEAVY_FUEL_EXTINGUISH_ONE_IN: 4, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
-  HEAVY_FUEL_SPREAD_ONE_IN: 1.25,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
+  HEAVY_FUEL_EXTINGUISH_ONE_IN: 3, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
+  HEAVY_FUEL_SPREAD_ONE_IN: 1.5,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
 
   // SPREADING MODES, one per spreading rule. Choose one:
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.
