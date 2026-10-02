@@ -40,6 +40,17 @@ function createStartingGrid(size) {
   return grid;
 }
 
+// RULE 13 (setup): Every cell has a fuel clock, kept in a second grid the same
+// size as the map. It counts the steps a shrub/tree has gone without burning.
+// The clock is updated at the end of each step (see nextFuelAge).
+function createStartingFuelAge(size) {
+  const fuelAge = [];
+  for (let row = 0; row < size; row++) {
+    fuelAge.push(new Array(size).fill(0));
+  }
+  return fuelAge;
+}
+
 // HELPERS
 
 // The 8 directions to a cell's neighbors: borders and diagonals.
@@ -129,6 +140,14 @@ function countNeighbors(grid, row, col, types) {
   return { matching, real };
 }
 
+// RULE 13: Is this cell heavy fuel? True for a shrub/tree whose clock has reached
+// HEAVY_FUEL_AFTER_STEPS, and for a fire that was burning in heavy fuel (a fire's
+// clock is paused at what it was when the cell caught fire).
+function isHeavyFuel(type, age) {
+  const canBeHeavy = type === SHRUB || type === TREE || type === SHRUB_FIRE || type === TREE_FIRE;
+  return canBeHeavy && age >= SETTINGS.HEAVY_FUEL_AFTER_STEPS;
+}
+
 // Changes a cell in the new grid. If more than one rule changes the same cell
 // in the same step, the bigger one wins (fire beats tree, tree beats shrub,
 // shrub beats grass).
@@ -139,7 +158,9 @@ function grow(after, row, col, type) {
 // ONE STEP
 // Every cell looks at the grid as it was at the start of the step ("before"),
 // and all changes are written into a new grid ("after") that replaces it at the end.
-function runStep(before) {
+// The fuel clocks (rule 13) work the same way: "ageBefore" is read, and the
+// new clocks are worked out at the end. Returns both new grids.
+function runStep(before, ageBefore) {
   const after = before.map(row => row.slice());
 
   for (let row = 0; row < before.length; row++) {
@@ -233,11 +254,17 @@ function runStep(before) {
       // The new fire's kind depends on what it spreads into: grass makes a grass
       // fire, a shrub or tree makes a shrub/tree fire.)
       if (isFire(cell)) {
+        const heavyFire = isHeavyFuel(cell, ageBefore[row][col]);
         for (const [r, c] of fireTargets(before, row, col, SETTINGS.FIRE_SPREAD_MODE)) {
           const intoGrass = before[r][c] === GRASS;
-          const chance = intoGrass
+          let chance = intoGrass
             ? SETTINGS.FIRE_GRASS_CATCH_ONE_IN
             : SETTINGS.FIRE_SPREAD_ONE_IN;
+          // RULE 13: Fire spreading from or into heavy fuel uses the boosted
+          // chance instead (this includes a heavy-fuel fire spreading into grass).
+          if (heavyFire || isHeavyFuel(before[r][c], ageBefore[r][c])) {
+            chance = SETTINGS.HEAVY_FUEL_SPREAD_ONE_IN;
+          }
           if (rollOneIn(chance)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
         }
 
@@ -245,7 +272,11 @@ function runStep(before) {
         // bare ground. When a fire cell that was a shrub or tree is extinguished,
         // it becomes burned ground.
         // (Set directly. No other rule can change a fire cell in the same step.)
-        if (rollOneIn(SETTINGS.FIRE_EXTINGUISH_ONE_IN)) {
+        // RULE 13: Fire burning in heavy fuel has its own chance of going out.
+        const goOutChance = heavyFire
+          ? SETTINGS.HEAVY_FUEL_EXTINGUISH_ONE_IN
+          : SETTINGS.FIRE_EXTINGUISH_ONE_IN;
+        if (rollOneIn(goOutChance)) {
           after[row][col] = cell === GRASS_FIRE ? BARE : BURNED;
         }
       }
@@ -260,14 +291,37 @@ function runStep(before) {
     }
   }
 
-  return after;
+  const ageAfter = before.map((cells, row) =>
+    cells.map((was, col) => nextFuelAge(was, after[row][col], ageBefore[row][col])));
+  return { grid: after, fuelAge: ageAfter };
+}
+
+// RULE 13: Each shrub/tree cell that goes 500 steps without burning becomes heavy
+// fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the
+// normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times
+// instead of the normal chance. When the viewer puts out a fire, the cell's fuel
+// does not reset. Only natural burning resets fuel.
+// (This works out a cell's new clock from what it was ("was") and what it is now.
+// The heavy-fuel chances are used in rules 9 and 10 above.)
+function nextFuelAge(was, now, age) {
+  const isPlant = (type) => type === SHRUB || type === TREE;
+  // Still a shrub or tree: one more step without burning. (A shrub that became
+  // a tree keeps counting.) Just became a shrub from grass: start from 0.
+  if (isPlant(now)) return isPlant(was) ? age + 1 : 0;
+  // On fire: the clock pauses. If the viewer puts the fire out (rule 12), the
+  // cell goes back to being a plant with this same count.
+  if (now === SHRUB_FIRE || now === TREE_FIRE) return age;
+  // Anything else (grass, bare ground, grass fire, or burned ground after a fire
+  // went out on its own): no fuel, so the clock is 0.
+  return 0;
 }
 
 // RULE 12: Firefighting. While the animation is playing, the viewer can drag a
 // brush across the grid to put out fires. Each fire cell put out goes back to what
 // it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank.
 // The tank holds 50 water and refills 1 water every 2 steps.
-// (This happens right away, between steps, not inside runStep. If the brush covers
+// (This happens right away, between steps, not inside runStep. The fuel clock
+// (rule 13) is left alone, so put-out cells keep their fuel. If the brush covers
 // more fire than there's water for, the fires closest to the middle go out first.
 // The mouse handling and the "only while playing" check are in main.js.)
 const PLANT_BEFORE_FIRE = { [GRASS_FIRE]: GRASS, [SHRUB_FIRE]: SHRUB, [TREE_FIRE]: TREE };

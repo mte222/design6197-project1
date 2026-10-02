@@ -36,6 +36,7 @@ const READOUT_LABELS = [
 ];
 
 let grid = createStartingGrid(SETTINGS.GRID_SIZE);
+let fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE); // Rule 13
 let stepCount = 0;
 let playing = false;
 let timer = null;
@@ -47,31 +48,36 @@ canvas.height = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
 function drawGrid() {
   const size = SETTINGS.CELL_SIZE;
   const counts = {};
+  let heavyFuel = 0;
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
       const type = grid[row][col];
       counts[type] = (counts[type] || 0) + 1;
+      if ((type === SHRUB || type === TREE) && isHeavyFuel(type, fuelAge[row][col])) heavyFuel++;
       ctx.fillStyle = COLOR_FOR_TYPE[type];
       ctx.fillRect(col * size, row * size, size, size);
     }
   }
   stepCounter.textContent = stepCount;
   waterAmount.textContent = water;
-  updateReadout(counts);
+  updateReadout(counts, heavyFuel);
 }
 
-// Shows what percentage of the map each cell type covers.
-function updateReadout(counts) {
+// Shows what percentage of the map each cell type covers, plus how much of the
+// map is heavy-fuel shrubs/trees (rule 13; these are also counted in Shrub and Tree).
+function updateReadout(counts, heavyFuel) {
   const total = grid.length * grid[0].length;
-  readout.innerHTML = READOUT_LABELS.map(([types, name]) => {
+  const entries = READOUT_LABELS.map(([types, name]) => {
     const count = types.reduce((sum, type) => sum + (counts[type] || 0), 0);
     const percent = (count / total * 100).toFixed(1);
     return `<span><span class="swatch" style="background:${COLOR_FOR_TYPE[types[0]]}"></span>${name} ${percent}%</span>`;
-  }).join("");
+  });
+  entries.push(`<span>Heavy fuel ${(heavyFuel / total * 100).toFixed(1)}%</span>`);
+  readout.innerHTML = entries.join("");
 }
 
 function stepForward() {
-  grid = runStep(grid);
+  ({ grid, fuelAge } = runStep(grid, fuelAge));
   stepCount++;
   water = refillWater(water, stepCount);
   drawGrid();
@@ -100,6 +106,7 @@ stepButton.addEventListener("click", () => {
 resetButton.addEventListener("click", () => {
   setPlaying(false);
   grid = createStartingGrid(SETTINGS.GRID_SIZE);
+  fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE);
   stepCount = 0;
   water = SETTINGS.WATER_TANK_SIZE;
   drawGrid();
