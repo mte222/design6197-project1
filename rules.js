@@ -6,22 +6,27 @@ const BARE = 0;
 const GRASS = 1;
 const SHRUB = 2;
 const TREE = 3;
-// Fire comes in two kinds that behave the same everywhere, except for what they
-// leave behind when they go out (rule 10). The kind is set by what the cell was
-// when it caught fire: a shrub/tree becomes FIRE, grass becomes GRASS_FIRE.
-// Both beat every plant in the tiebreaker. They never compete with each other,
+// Fire comes in three kinds that behave the same everywhere, except for what they
+// leave behind when they go out (rule 10) or are put out by the viewer (rule 12).
+// The kind is set by what the cell was when it caught fire: grass becomes
+// GRASS_FIRE, a shrub becomes SHRUB_FIRE, a tree becomes TREE_FIRE.
+// All kinds beat every plant in the tiebreaker. They never compete with each other,
 // because a cell's kind of fire is decided by what that cell was.
-const FIRE = 4;
+const SHRUB_FIRE = 4;
 const GRASS_FIRE = 5;
-const FIRE_TYPES = [FIRE, GRASS_FIRE];
+const TREE_FIRE = 6;
+const FIRE_TYPES = [SHRUB_FIRE, GRASS_FIRE, TREE_FIRE];
 // Burned ground is never part of the tiebreaker: nothing can spread into it.
 // Giving it the biggest number means grow can never overwrite it.
-const BURNED = 6;
+const BURNED = 7;
 
-// Is this cell on fire (either kind)?
+// Is this cell on fire (any kind)?
 function isFire(type) {
-  return type === FIRE || type === GRASS_FIRE;
+  return FIRE_TYPES.includes(type);
 }
+
+// The kind of fire a plant becomes when it catches fire.
+const FIRE_KIND_FOR = { [GRASS]: GRASS_FIRE, [SHRUB]: SHRUB_FIRE, [TREE]: TREE_FIRE };
 
 // RULE 1: Starting point.
 // The map starts as a grid full of bare ground, with grass in the center cell.
@@ -216,7 +221,7 @@ function runStep(before) {
       if (cell === SHRUB || cell === TREE) {
         const { matching, real } = countNeighbors(before, row, col, [SHRUB, TREE]);
         const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN;
-        if (Math.random() < chance) grow(after, row, col, FIRE);
+        if (Math.random() < chance) grow(after, row, col, FIRE_KIND_FOR[cell]);
       }
 
       // RULE 9: Each step a fire cell has a 50% chance of extinguishing and a 50%
@@ -233,7 +238,7 @@ function runStep(before) {
           const chance = intoGrass
             ? SETTINGS.FIRE_GRASS_CATCH_ONE_IN
             : SETTINGS.FIRE_SPREAD_ONE_IN;
-          if (rollOneIn(chance)) grow(after, r, c, intoGrass ? GRASS_FIRE : FIRE);
+          if (rollOneIn(chance)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
         }
 
         // RULE 10: When a fire cell that was grass is extinguished, it returns to

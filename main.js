@@ -16,13 +16,14 @@ const COLOR_FOR_TYPE = {
   [GRASS]: SETTINGS.COLORS.GRASS,
   [SHRUB]: SETTINGS.COLORS.SHRUB,
   [TREE]: SETTINGS.COLORS.TREE,
-  [FIRE]: SETTINGS.COLORS.FIRE,
-  [GRASS_FIRE]: SETTINGS.COLORS.FIRE, // both kinds of fire look the same
+  [SHRUB_FIRE]: SETTINGS.COLORS.FIRE, // all kinds of fire look the same
+  [GRASS_FIRE]: SETTINGS.COLORS.FIRE,
+  [TREE_FIRE]: SETTINGS.COLORS.FIRE,
   [BURNED]: SETTINGS.COLORS.BURNED,
 };
 
 // Names for the percentage readout, in the order shown. Each entry lists the
-// cell types it adds up (both kinds of fire count together as "Fire").
+// cell types it adds up (all kinds of fire count together as "Fire").
 const READOUT_LABELS = [
   [[BARE], "Bare"],
   [[GRASS], "Grass"],
