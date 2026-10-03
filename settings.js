@@ -15,9 +15,9 @@ const SETTINGS = {
   WRAP_EDGES: true,
 
   // FIREFIGHTERS (Rule 12). Turned on and off with the Firefighting button.
-  FIREFIGHTER_COUNT: 6,  // Rule 12: how many firefighters are in the crew
-  FIREFIGHTER_SPEED: 2,  // Rule 12: most cells a firefighter moves each step (fire spreads at most 1)
-  FIREFIGHTER_REACH: 3,  // Rule 12: puts out all fire in a square this many cells across (3 = 3x3)
+  FIREFIGHTER_COUNT: 3,  // Rule 12: how many firefighters are in the crew
+  FIREFIGHTER_SPEED: 1,  // Rule 12: most cells a firefighter moves each step (fire spreads at most 1)
+  FIREFIGHTER_REACH: 1,  // Rule 12: puts out all fire in a square this many cells across (3 = 3x3)
 
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
