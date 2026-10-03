@@ -127,6 +127,8 @@ I am learning Git through this project.
 
 ### Saved versions (tags)
 - **`v1-stable`**: the version I liked before the firefighting experiments (rules 1–11 with wrap-around edges). It's a permanent bookmark on that commit.
+- **`v2-firefighting`**: rules 1–13 with firefighting (rule 12) and fuel buildup (rule 13), on the `firefighting` branch, with tuned settings (water tank 100, shrub spread 1 in 60). `forest-share.html` is not part of this version.
 - To look at it: `git checkout v1-stable` (commit or stash any changes first). Git will say "detached HEAD", which just means I'm looking at a bookmark, not standing on a branch.
 - To go back to normal work afterward: `git switch main` (or whichever branch I was on).
 - To start new work from that version: `git switch -c <new-branch-name> v1-stable`.
+- The same commands work for `v2-firefighting` (just swap in its name).
