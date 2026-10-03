@@ -32,6 +32,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
 12. Firefighting: While the animation is playing, the viewer can drag a brush across the grid to put out fires. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank. The tank holds 50 water and refills 1 water every 2 steps.
 13. Fuel buildup: Each shrub/tree cell that goes 500 steps without burning becomes heavy fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times instead of the normal chance. When the viewer puts out a fire, the cell's fuel does not reset. Only natural burning resets fuel.
+14. Climate: The viewer can choose the climate: dry, normal, or wet. Normal is the current behavior. Dry makes fuel build up faster and makes fire start and spread more easily. Wet makes fuel build up more slowly and makes fire start and spread less easily.
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
@@ -102,6 +103,18 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Ignition (rule 8) is unchanged:** Heavy fuel doesn't catch fire on its own any more often.
 - **Color:** Same as normal shrubs and trees (heavy fuel is invisible on the map).
 - **Readout:** Shrub and Tree still include heavy-fuel cells, plus a separate "Heavy fuel" entry for the share of the map that is heavy-fuel shrubs/trees (so totals add up to more than 100%).
+
+### Climate decisions (rule 14)
+- **Multipliers:** Each climate has a few multipliers in `settings.js` (`CLIMATES`) that are applied to the existing settings. Normal is 1 for everything, so it behaves exactly like the version before climate.
+- **Fire starting (rule 8):** The ignition chance is multiplied.
+- **Fire spreading (rule 9) means both:** The chance of catching is multiplied, and so is the chance of going out (dry: less likely to go out; wet: more likely).
+- **Catching applies to every target:** grass, shrubs, and trees.
+- **Heavy fuel (rule 13) is included:** The heavy-fuel chances of going out and of spreading are multiplied too. Any chance that goes above 100% counts as 100%.
+- **Fuel buildup = clock speed:** The heavy-fuel finish line (`HEAVY_FUEL_AFTER_STEPS`) stays the same. The climate changes how much the fuel clock adds each step (e.g. dry adds 2, wet adds ½).
+- **Not affected:** plant growth (rules 2–7), burned ground recovery (rule 11), and the water tank (rule 12).
+- **Changing mid-run:** Takes effect on the next step. Built-up fuel stays.
+- **Reset:** Goes back to Normal.
+- **Display:** A "Climate:" row with Dry, Normal, and Wet buttons. The current one is bold with a dark outline (no special colors). "Climate: Normal" also shows next to the step counter. The buttons work while paused.
 
 ## Prototype scope
 - Shows the grid animating step by step.
