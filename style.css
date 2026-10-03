@@ -30,6 +30,17 @@ h1 {
   cursor: pointer;
 }
 
+.controls.climate button {
+  border: 1px solid #aaa;
+  background: #fff;
+}
+
+/* Rule 14: the current climate is bold with a dark outline. */
+.controls.climate button[aria-pressed="true"] {
+  font-weight: 700;
+  border: 2px solid #222;
+}
+
 .controls label {
   display: flex;
   align-items: center;

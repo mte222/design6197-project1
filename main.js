@@ -12,6 +12,8 @@ const stepCounter = document.getElementById("step-count");
 const readout = document.getElementById("readout");
 const waterDisplay = document.getElementById("water-display");
 const waterAmount = document.getElementById("water");
+const climateName = document.getElementById("climate-name");
+const climateButtons = document.querySelectorAll("[data-climate]");
 
 const COLOR_FOR_TYPE = {
   [BARE]: SETTINGS.COLORS.BARE,
@@ -110,12 +112,29 @@ resetButton.addEventListener("click", () => {
   fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE);
   stepCount = 0;
   water = SETTINGS.WATER_TANK_SIZE;
+  setClimate("NORMAL"); // Rule 14: Reset goes back to Normal
   drawGrid();
 });
 
 speedSlider.addEventListener("input", () => {
   speedLabel.textContent = speedSlider.value;
 });
+
+// CLIMATE BUTTONS (Rule 14)
+// Picks the climate used from the next step on. Works while paused too.
+// Fuel already built up stays; only the multipliers change.
+function setClimate(name) {
+  climate = name;
+  for (const button of climateButtons) {
+    const isCurrent = button.dataset.climate === name;
+    button.setAttribute("aria-pressed", isCurrent);
+    if (isCurrent) climateName.textContent = button.textContent;
+  }
+}
+
+for (const button of climateButtons) {
+  button.addEventListener("click", () => setClimate(button.dataset.climate));
+}
 
 // FIREFIGHTING BRUSH (Rule 12)
 // Hold the mouse button and drag across the grid to put out fires. Only works
@@ -175,4 +194,5 @@ if (SETTINGS.FIREFIGHTING) {
   waterDisplay.hidden = true;
 }
 
+setClimate("NORMAL");
 drawGrid();
