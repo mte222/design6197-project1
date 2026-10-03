@@ -7,7 +7,7 @@ const GRASS = 1;
 const SHRUB = 2;
 const TREE = 3;
 // Fire comes in three kinds that behave the same everywhere, except for what they
-// leave behind when they go out (rule 10) or are put out by the viewer (rule 12).
+// leave behind when they go out (rule 10) or are put out by a firefighter (rule 12).
 // The kind is set by what the cell was when it caught fire: grass becomes
 // GRASS_FIRE, a shrub becomes SHRUB_FIRE, a tree becomes TREE_FIRE.
 // All kinds beat every plant in the tiebreaker. They never compete with each other,
@@ -310,7 +310,7 @@ function nextFuelAge(was, now, age, climate) {
   // a tree keeps counting.) Just became a shrub from grass: start from 0.
   // RULE 14: Climate changes how much the clock adds each step (normal adds 1).
   if (isPlant(now)) return isPlant(was) ? age + climate.FUEL_BUILDUP : 0;
-  // On fire: the clock pauses. If the viewer puts the fire out (rule 12), the
+  // On fire: the clock pauses. If a firefighter puts the fire out (rule 12), the
   // cell goes back to being a plant with this same count.
   if (now === SHRUB_FIRE || now === TREE_FIRE) return age;
   // Anything else (grass, bare ground, grass fire, or burned ground after a fire
@@ -318,40 +318,135 @@ function nextFuelAge(was, now, age, climate) {
   return 0;
 }
 
-// RULE 12: Firefighting. While the animation is playing, the viewer can drag a
-// brush across the grid to put out fires. Each fire cell put out goes back to what
-// it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank.
-// The tank holds 50 water and refills 1 water every 2 steps.
-// (This happens right away, between steps, not inside runStep. The fuel clock
-// (rule 13) is left alone, so put-out cells keep their fuel. If the brush covers
-// more fire than there's water for, the fires closest to the middle go out first.
-// The mouse handling and the "only while playing" check are in main.js.)
+// RULE 12: Firefighting. The viewer can turn on a "Firefighting" button. When it's
+// on, a crew of firefighters (each shown as a blue cell) moves around the map, chases
+// fires, and puts them out. Each fire cell put out goes back to what it was before
+// it caught fire (grass, shrub, or tree).
+// (Firefighters are markers on top of the map, not a cell type. They act after
+// runStep, between steps. The fuel clock (rule 13) is left alone, so put-out cells
+// keep their fuel. The button and drawing are in main.js.)
 const PLANT_BEFORE_FIRE = { [GRASS_FIRE]: GRASS, [SHRUB_FIRE]: SHRUB, [TREE_FIRE]: TREE };
 
-// Puts out fires in the brush square centered on (row, col), using at most
-// `water`. Changes the grid directly. Returns how much water was used.
-function putOutFires(grid, row, col, water) {
-  const low = -Math.floor((SETTINGS.BRUSH_SIZE - 1) / 2);
-  const high = Math.floor(SETTINGS.BRUSH_SIZE / 2);
-  const fires = [];
+// A new crew of FIREFIGHTER_COUNT firefighters, each at a random cell on the
+// outer edge of the grid. Each firefighter is { row, col }.
+function createFirefighters(size) {
+  const edgeCells = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (row === 0 || col === 0 || row === size - 1 || col === size - 1) edgeCells.push({ row, col });
+    }
+  }
+  const crew = [];
+  for (let i = 0; i < SETTINGS.FIREFIGHTER_COUNT; i++) {
+    crew.push({ ...edgeCells[Math.floor(Math.random() * edgeCells.length)] });
+  }
+  return crew;
+}
+
+// The cells in the square around (row, col) that a firefighter reaches
+// (FIREFIGHTER_REACH across, its own cell included). Wraps when wrap-around is on.
+function cellsInReach(grid, row, col) {
+  const low = -Math.floor((SETTINGS.FIREFIGHTER_REACH - 1) / 2);
+  const high = Math.floor(SETTINGS.FIREFIGHTER_REACH / 2);
+  const cells = [];
   for (let dRow = low; dRow <= high; dRow++) {
     for (let dCol = low; dCol <= high; dCol++) {
       const spot = neighborAt(grid, row, col, dRow, dCol);
-      if (spot && isFire(grid[spot[0]][spot[1]])) {
-        fires.push({ spot, distance: dRow * dRow + dCol * dCol });
-      }
+      if (spot) cells.push(spot);
     }
   }
-  fires.sort((a, b) => a.distance - b.distance);
-  const used = Math.min(water, fires.length);
-  for (const { spot: [r, c] } of fires.slice(0, used)) {
-    grid[r][c] = PLANT_BEFORE_FIRE[grid[r][c]];
-  }
-  return used;
+  return cells;
 }
 
-// The tank gains 1 water each time WATER_REFILL_EVERY_STEPS steps pass, up to full.
-function refillWater(water, stepCount) {
-  if (stepCount % SETTINGS.WATER_REFILL_EVERY_STEPS !== 0) return water;
-  return Math.min(water + 1, SETTINGS.WATER_TANK_SIZE);
+// Puts out every fire cell in reach of (row, col). Changes the grid directly.
+// Returns how many fire cells were put out.
+function putOutFiresAround(grid, row, col) {
+  let count = 0;
+  for (const [r, c] of cellsInReach(grid, row, col)) {
+    if (isFire(grid[r][c])) {
+      grid[r][c] = PLANT_BEFORE_FIRE[grid[r][c]];
+      count++;
+    }
+  }
+  return count;
+}
+
+// The shortest way from one spot to another, as [rows, cols] to move (either can
+// be negative). With wrap-around on, going across an edge counts if it's shorter.
+function offsetTo(grid, from, to) {
+  let dRow = to.row - from.row;
+  let dCol = to.col - from.col;
+  if (SETTINGS.WRAP_EDGES) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    if (dRow > rows / 2) dRow -= rows;
+    if (dRow < -rows / 2) dRow += rows;
+    if (dCol > cols / 2) dCol -= cols;
+    if (dCol < -cols / 2) dCol += cols;
+  }
+  return [dRow, dCol];
+}
+
+// How many moves (in any of the 8 directions) it takes to get from one spot to another.
+function movesBetween(grid, from, to) {
+  const [dRow, dCol] = offsetTo(grid, from, to);
+  return Math.max(Math.abs(dRow), Math.abs(dCol));
+}
+
+// The nearest fire cell to this firefighter that no one has claimed. If every
+// fire cell is claimed, the nearest fire cell anyway. Null if there are no fires.
+// (Ties are broken at random.)
+function chooseFire(grid, firefighter, fires, claimed) {
+  const burning = fires.filter(({ row, col }) => isFire(grid[row][col]));
+  const unclaimed = burning.filter(({ row, col }) => !claimed.has(row + "," + col));
+  const choices = unclaimed.length > 0 ? unclaimed : burning;
+  let best = null;
+  let bestMoves = Infinity;
+  let ties = 0;
+  for (const fire of choices) {
+    const moves = movesBetween(grid, firefighter, fire);
+    if (moves < bestMoves) {
+      best = fire; bestMoves = moves; ties = 1;
+    } else if (moves === bestMoves && Math.random() < 1 / ++ties) {
+      best = fire;
+    }
+  }
+  return best;
+}
+
+// Moves a firefighter one cell: toward the target if there is one, otherwise in
+// a random direction (wandering). With wrap-around off, it stays inside the grid.
+function moveOneCell(grid, firefighter, target) {
+  let direction;
+  if (target) {
+    const [dRow, dCol] = offsetTo(grid, firefighter, target);
+    direction = [Math.sign(dRow), Math.sign(dCol)];
+  } else {
+    direction = NEIGHBOR_DIRECTIONS[Math.floor(Math.random() * 8)];
+  }
+  const spot = neighborAt(grid, firefighter.row, firefighter.col, direction[0], direction[1]);
+  if (spot) [firefighter.row, firefighter.col] = spot;
+  // Off the grid (wrap-around off, wandering): it stays put for this move.
+}
+
+// Each step, after all the other rules: each firefighter picks a fire, then moves
+// one cell at a time, up to FIREFIGHTER_SPEED cells. As soon as any fire is in
+// reach, it stops and puts it all out. Changes the grid and firefighters directly.
+function runFirefighters(grid, firefighters) {
+  const fires = [];
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[row].length; col++) {
+      if (isFire(grid[row][col])) fires.push({ row, col });
+    }
+  }
+  const claimed = new Set();
+  for (const firefighter of firefighters) {
+    const target = chooseFire(grid, firefighter, fires, claimed);
+    if (target) claimed.add(target.row + "," + target.col);
+    for (let moved = 0; ; moved++) {
+      if (putOutFiresAround(grid, firefighter.row, firefighter.col) > 0) break;
+      if (moved === SETTINGS.FIREFIGHTER_SPEED) break;
+      moveOneCell(grid, firefighter, target);
+    }
+  }
 }

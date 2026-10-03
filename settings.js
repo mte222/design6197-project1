@@ -14,13 +14,10 @@ const SETTINGS = {
   //   false - plants and fire stop at the edge (the original edge choices).
   WRAP_EDGES: true,
 
-  // FIREFIGHTING (Rule 12): true or false.
-  //   true  - while playing, drag on the grid to put out fires.
-  //   false - the brush does nothing and the water readout is hidden.
-  FIREFIGHTING: true,
-  BRUSH_SIZE: 5,               // Rule 12: brush is a square this many cells across
-  WATER_TANK_SIZE: 100,         // Rule 12: most water the tank can hold (1 water = 1 fire cell)
-  WATER_REFILL_EVERY_STEPS: 2, // Rule 12: the tank gains 1 water each time this many steps pass
+  // FIREFIGHTERS (Rule 12). Turned on and off with the Firefighting button.
+  FIREFIGHTER_COUNT: 6,  // Rule 12: how many firefighters are in the crew
+  FIREFIGHTER_SPEED: 2,  // Rule 12: most cells a firefighter moves each step (fire spreads at most 1)
+  FIREFIGHTER_REACH: 3,  // Rule 12: puts out all fire in a square this many cells across (3 = 3x3)
 
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
@@ -70,5 +67,6 @@ const SETTINGS = {
     TREE: "#1f5226",  // dark green
     FIRE: "#ff5a1f",  // bright orange-red
     BURNED: "#3a3532", // charcoal
+    FIREFIGHTER: "#1e6bff", // blue (Rule 12; drawn on top of the map)
   },
 };

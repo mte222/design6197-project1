@@ -10,8 +10,7 @@ const speedSlider = document.getElementById("speed");
 const speedLabel = document.getElementById("speed-label");
 const stepCounter = document.getElementById("step-count");
 const readout = document.getElementById("readout");
-const waterDisplay = document.getElementById("water-display");
-const waterAmount = document.getElementById("water");
+const firefightingButton = document.getElementById("firefighting");
 const climateName = document.getElementById("climate-name");
 const climateButtons = document.querySelectorAll("[data-climate]");
 
@@ -42,7 +41,8 @@ let fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE); // Rule 13
 let stepCount = 0;
 let playing = false;
 let timer = null;
-let water = SETTINGS.WATER_TANK_SIZE; // Rule 12: the tank starts full
+let firefightingOn = false; // Rule 12: the Firefighting button starts off
+let firefighters = [];      // Rule 12: empty while the button is off
 let climate = "NORMAL"; // Rule 14: one of the names in SETTINGS.CLIMATES
 
 canvas.width = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
@@ -61,8 +61,12 @@ function drawGrid() {
       ctx.fillRect(col * size, row * size, size, size);
     }
   }
+  // Rule 12: firefighters are drawn on top of the cells.
+  ctx.fillStyle = SETTINGS.COLORS.FIREFIGHTER;
+  for (const { row, col } of firefighters) {
+    ctx.fillRect(col * size, row * size, size, size);
+  }
   stepCounter.textContent = stepCount;
-  waterAmount.textContent = water;
   updateReadout(counts, heavyFuel);
 }
 
@@ -81,8 +85,8 @@ function updateReadout(counts, heavyFuel) {
 
 function stepForward() {
   ({ grid, fuelAge } = runStep(grid, fuelAge, SETTINGS.CLIMATES[climate]));
+  runFirefighters(grid, firefighters); // Rule 12: after all the other rules
   stepCount++;
-  water = refillWater(water, stepCount);
   drawGrid();
 }
 
@@ -111,7 +115,7 @@ resetButton.addEventListener("click", () => {
   grid = createStartingGrid(SETTINGS.GRID_SIZE);
   fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE);
   stepCount = 0;
-  water = SETTINGS.WATER_TANK_SIZE;
+  setFirefighting(false); // Rule 12: Reset turns firefighting off
   setClimate("NORMAL"); // Rule 14: Reset goes back to Normal
   drawGrid();
 });
@@ -136,63 +140,19 @@ for (const button of climateButtons) {
   button.addEventListener("click", () => setClimate(button.dataset.climate));
 }
 
-// FIREFIGHTING BRUSH (Rule 12)
-// Hold the mouse button and drag across the grid to put out fires. Only works
-// while playing. The rule itself (putOutFires) is in rules.js.
-let brushing = false;
-let lastBrushCell = null;
-
-// Which grid cell is under the mouse, as [row, col]. Accounts for the canvas
-// being shrunk to fit a small window.
-function cellUnderMouse(event) {
-  const box = canvas.getBoundingClientRect();
-  const col = Math.floor((event.clientX - box.left) / box.width * SETTINGS.GRID_SIZE);
-  const row = Math.floor((event.clientY - box.top) / box.height * SETTINGS.GRID_SIZE);
-  return [
-    Math.min(Math.max(row, 0), SETTINGS.GRID_SIZE - 1),
-    Math.min(Math.max(col, 0), SETTINGS.GRID_SIZE - 1),
-  ];
+// FIREFIGHTING BUTTON (Rule 12)
+// On: a new crew appears on the edges of the grid. Off: the crew is removed.
+// The firefighters themselves (runFirefighters) are in rules.js.
+function setFirefighting(on) {
+  firefightingOn = on;
+  firefighters = on ? createFirefighters(SETTINGS.GRID_SIZE) : [];
+  firefightingButton.setAttribute("aria-pressed", on);
 }
 
-// Brushes every cell along the line from the last mouse position to this one,
-// so a fast drag doesn't skip over cells between mouse updates.
-function brushTo(cell) {
-  const [fromRow, fromCol] = lastBrushCell || cell;
-  const [toRow, toCol] = cell;
-  const steps = Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol), 1);
-  for (let i = 1; i <= steps && water > 0; i++) {
-    const row = Math.round(fromRow + (toRow - fromRow) * i / steps);
-    const col = Math.round(fromCol + (toCol - fromCol) * i / steps);
-    water -= putOutFires(grid, row, col, water);
-  }
-  lastBrushCell = cell;
+firefightingButton.addEventListener("click", () => {
+  setFirefighting(!firefightingOn);
   drawGrid();
-}
-
-if (SETTINGS.FIREFIGHTING) {
-  canvas.style.cursor = "crosshair";
-
-  canvas.addEventListener("pointerdown", (event) => {
-    brushing = true;
-    lastBrushCell = null;
-    canvas.setPointerCapture(event.pointerId);
-    if (playing) brushTo(cellUnderMouse(event));
-  });
-
-  canvas.addEventListener("pointermove", (event) => {
-    if (!brushing) return;
-    if (!playing) { lastBrushCell = null; return; }
-    brushTo(cellUnderMouse(event));
-  });
-
-  const stopBrushing = () => { brushing = false; lastBrushCell = null; };
-  canvas.addEventListener("pointerup", stopBrushing);
-  canvas.addEventListener("pointercancel", stopBrushing);
-
-  document.getElementById("water-max").textContent = SETTINGS.WATER_TANK_SIZE;
-} else {
-  waterDisplay.hidden = true;
-}
+});
 
 setClimate("NORMAL");
 drawGrid();
