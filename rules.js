@@ -65,13 +65,6 @@ function rollOneIn(n) {
   return Math.random() < 1 / n;
 }
 
-// RULE 14: Rolls a "1 in N" chance after multiplying it by a climate multiplier.
-// A chance above 100% counts as 100%. With a multiplier of 1 this is the same
-// roll as rollOneIn.
-function rollOneInWithClimate(n, multiplier) {
-  return Math.random() < Math.min(1, multiplier / n);
-}
-
 // Is this spot inside the grid?
 function isInGrid(grid, row, col) {
   return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
@@ -249,8 +242,7 @@ function runStep(before, ageBefore, climate) {
       // Only shrubs/trees ignite, so this is always the shrub/tree kind of fire.)
       if (cell === SHRUB || cell === TREE) {
         const { matching, real } = countNeighbors(before, row, col, [SHRUB, TREE]);
-        // RULE 14: Climate changes how easily fire starts.
-        const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN * climate.FIRE_START;
+        const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN;
         if (Math.random() < chance) grow(after, row, col, FIRE_KIND_FOR[cell]);
       }
 
@@ -274,8 +266,7 @@ function runStep(before, ageBefore, climate) {
           if (heavyFire || isHeavyFuel(before[r][c], ageBefore[r][c])) {
             chance = SETTINGS.HEAVY_FUEL_SPREAD_ONE_IN;
           }
-          // RULE 14: Climate changes how easily fire catches.
-          if (rollOneInWithClimate(chance, climate.FIRE_CATCH)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
+          if (rollOneIn(chance)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
         }
 
         // RULE 10: When a fire cell that was grass is extinguished, it returns to
@@ -286,8 +277,7 @@ function runStep(before, ageBefore, climate) {
         const goOutChance = heavyFire
           ? SETTINGS.HEAVY_FUEL_EXTINGUISH_ONE_IN
           : SETTINGS.FIRE_EXTINGUISH_ONE_IN;
-        // RULE 14: Climate changes how easily fire goes out.
-        if (rollOneInWithClimate(goOutChance, climate.FIRE_GO_OUT)) {
+        if (rollOneIn(goOutChance)) {
           after[row][col] = cell === GRASS_FIRE ? BARE : BURNED;
         }
       }

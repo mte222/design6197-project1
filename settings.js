@@ -40,18 +40,14 @@ const SETTINGS = {
   HEAVY_FUEL_EXTINGUISH_ONE_IN: 3, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
   HEAVY_FUEL_SPREAD_ONE_IN: 1.5,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
 
-  // CLIMATE (Rule 14). Multipliers applied to the settings above.
-  //   1 = no change. Above 1 = more likely / faster. Below 1 = less likely / slower.
-  //   Any chance that goes above 100% counts as 100%.
-  //   FUEL_BUILDUP: how much the fuel clock adds each step (finish line stays HEAVY_FUEL_AFTER_STEPS)
-  //   FIRE_START:   rule 8 ignition chance
-  //   FIRE_CATCH:   rule 9 catching chance (grass, shrubs, trees, and heavy fuel)
-  //   FIRE_GO_OUT:  rule 9/10 going-out chance (normal and heavy fuel)
-  // NORMAL should stay all 1s so it matches the version before climate.
+  // CLIMATE (Rule 14). Climate only changes how fast heavy fuel builds up.
+  //   FUEL_BUILDUP: how much the fuel clock adds each step. The finish line stays
+  //   HEAVY_FUEL_AFTER_STEPS, so 2 = heavy fuel twice as fast, 0.5 = half as fast.
+  // NORMAL should stay 1 so it matches the version before climate.
   CLIMATES: {
-    DRY:    { FUEL_BUILDUP: 2,   FIRE_START: 2,   FIRE_CATCH: 1.5, FIRE_GO_OUT: 0.6 },
-    NORMAL: { FUEL_BUILDUP: 1,   FIRE_START: 1,   FIRE_CATCH: 1,   FIRE_GO_OUT: 1 },
-    WET:    { FUEL_BUILDUP: 0.5, FIRE_START: 0.5, FIRE_CATCH: 0.6, FIRE_GO_OUT: 1.5 },
+    DRY:    { FUEL_BUILDUP: 2 },
+    NORMAL: { FUEL_BUILDUP: 1 },
+    WET:    { FUEL_BUILDUP: 0.5 },
   },
 
   // SPREADING MODES, one per spreading rule. Choose one:

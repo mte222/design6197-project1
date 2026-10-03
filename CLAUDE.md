@@ -32,7 +32,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
 12. Firefighting: While the animation is playing, the viewer can drag a brush across the grid to put out fires. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank. The tank holds 50 water and refills 1 water every 2 steps.
 13. Fuel buildup: Each shrub/tree cell that goes 500 steps without burning becomes heavy fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times instead of the normal chance. When the viewer puts out a fire, the cell's fuel does not reset. Only natural burning resets fuel.
-14. Climate: The viewer can choose the climate: dry, normal, or wet. Normal is the current behavior. Dry makes fuel build up faster and makes fire start and spread more easily. Wet makes fuel build up more slowly and makes fire start and spread less easily.
+14. Climate: The viewer can choose the climate: dry, normal, or wet. Climate only changes how fast fuel builds up. Dry builds fuel faster, wet builds it slower, and normal is the current behavior.
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
@@ -105,13 +105,9 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Readout:** Shrub and Tree still include heavy-fuel cells, plus a separate "Heavy fuel" entry for the share of the map that is heavy-fuel shrubs/trees (so totals add up to more than 100%).
 
 ### Climate decisions (rule 14)
-- **Multipliers:** Each climate has a few multipliers in `settings.js` (`CLIMATES`) that are applied to the existing settings. Normal is 1 for everything, so it behaves exactly like the version before climate.
-- **Fire starting (rule 8):** The ignition chance is multiplied.
-- **Fire spreading (rule 9) means both:** The chance of catching is multiplied, and so is the chance of going out (dry: less likely to go out; wet: more likely).
-- **Catching applies to every target:** grass, shrubs, and trees.
-- **Heavy fuel (rule 13) is included:** The heavy-fuel chances of going out and of spreading are multiplied too. Any chance that goes above 100% counts as 100%.
-- **Fuel buildup = clock speed:** The heavy-fuel finish line (`HEAVY_FUEL_AFTER_STEPS`) stays the same. The climate changes how much the fuel clock adds each step (e.g. dry adds 2, wet adds ½).
-- **Not affected:** plant growth (rules 2–7), burned ground recovery (rule 11), and the water tank (rule 12).
+- **Only fuel buildup:** Climate changes nothing but how fast heavy fuel builds up. Fire starting, spreading, and going out (rules 8–10, including the heavy-fuel chances) are the same in every climate. (The earlier version, where climate also changed fire, is saved as the `v3-climate-original` tag.)
+- **Fuel buildup = clock speed:** The heavy-fuel finish line (`HEAVY_FUEL_AFTER_STEPS`) stays the same. Each climate has a `FUEL_BUILDUP` value in `settings.js` (`CLIMATES`) for how much the fuel clock adds each step (e.g. dry adds 2, wet adds ½). Normal adds 1, so it behaves exactly like the version before climate.
+- **Not affected:** plant growth (rules 2–7), fire (rules 8–10), burned ground recovery (rule 11), and the water tank (rule 12).
 - **Changing mid-run:** Takes effect on the next step. Built-up fuel stays.
 - **Reset:** Goes back to Normal.
 - **Display:** A "Climate:" row with Dry, Normal, and Wet buttons. The current one is bold with a dark outline (no special colors). "Climate: Normal" also shows next to the step counter. The buttons work while paused.
@@ -141,7 +137,8 @@ I am learning Git through this project.
 ### Saved versions (tags)
 - **`v1-stable`**: the version I liked before the firefighting experiments (rules 1–11 with wrap-around edges). It's a permanent bookmark on that commit.
 - **`v2-firefighting`**: rules 1–13 with firefighting (rule 12) and fuel buildup (rule 13), on the `firefighting` branch, with tuned settings (water tank 100, shrub spread 1 in 60). `forest-share.html` is not part of this version.
+- **`v3-climate-original`**: rules 1–14 with the first climate version, where climate changed fuel buildup *and* fire starting, spreading, and going out.
 - To look at it: `git checkout v1-stable` (commit or stash any changes first). Git will say "detached HEAD", which just means I'm looking at a bookmark, not standing on a branch.
 - To go back to normal work afterward: `git switch main` (or whichever branch I was on).
 - To start new work from that version: `git switch -c <new-branch-name> v1-stable`.
-- The same commands work for `v2-firefighting` (just swap in its name).
+- The same commands work for `v2-firefighting` and `v3-climate-original` (just swap in the name).
