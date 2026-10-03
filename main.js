@@ -16,6 +16,9 @@ const climateButtons = document.querySelectorAll("[data-climate]");
 const fireCount = document.getElementById("fire-count");
 const fireAverage = document.getElementById("fire-average");
 const fireBiggest = document.getElementById("fire-biggest");
+const historyChart = document.getElementById("history-chart");
+const historyTree = document.getElementById("history-tree");
+const historyHeavy = document.getElementById("history-heavy");
 
 const COLOR_FOR_TYPE = {
   [BARE]: SETTINGS.COLORS.BARE,
@@ -48,6 +51,8 @@ let firefightingOn = false; // Rule 12: the Firefighting button starts off
 let firefighters = [];      // Rule 12: empty while the button is off
 let climate = "NORMAL"; // Rule 14: one of the names in SETTINGS.CLIMATES
 let fireTracker = createFireTracker(SETTINGS.GRID_SIZE); // Measurement: fire sizes (stats.js)
+let history = [];        // Measurement: tree and heavy fuel % for every step since Reset
+let latestPercents = {}; // Measurement: tree and heavy fuel % on the map right now
 
 canvas.width = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
 canvas.height = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
@@ -94,6 +99,15 @@ function updateReadout(counts, heavyFuel) {
   });
   entries.push(`<span>Heavy fuel ${(heavyFuel / total * 100).toFixed(1)}%</span>`);
   readout.innerHTML = entries.join("");
+  latestPercents = { tree: (counts[TREE] || 0) / total * 100, heavyFuel: heavyFuel / total * 100 };
+}
+
+// Measurement: adds this step's tree and heavy fuel % to the history and redraws the graph.
+function recordHistory() {
+  history.push(latestPercents);
+  historyTree.textContent = latestPercents.tree.toFixed(1) + "%";
+  historyHeavy.textContent = latestPercents.heavyFuel.toFixed(1) + "%";
+  drawHistoryChart(historyChart, history);
 }
 
 function stepForward() {
@@ -103,6 +117,7 @@ function stepForward() {
   trackFiresOut(fireTracker, grid);
   stepCount++;
   drawGrid();
+  recordHistory();
 }
 
 // While playing, take one step, then wait based on the speed slider, then repeat.
@@ -131,9 +146,11 @@ resetButton.addEventListener("click", () => {
   fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE);
   stepCount = 0;
   fireTracker = createFireTracker(SETTINGS.GRID_SIZE);
+  history = [];
   setFirefighting(false); // Rule 12: Reset turns firefighting off
   setClimate("NORMAL"); // Rule 14: Reset goes back to Normal
   drawGrid();
+  recordHistory();
 });
 
 speedSlider.addEventListener("input", () => {
@@ -172,3 +189,7 @@ firefightingButton.addEventListener("click", () => {
 
 setClimate("NORMAL");
 drawGrid();
+recordHistory();
+
+// Measurement: redraw the graph to fit when the window is resized.
+window.addEventListener("resize", () => drawHistoryChart(historyChart, history));
