@@ -19,14 +19,14 @@ const SETTINGS = {
   //   false - the brush does nothing and the water readout is hidden.
   FIREFIGHTING: true,
   BRUSH_SIZE: 5,               // Rule 12: brush is a square this many cells across
-  WATER_TANK_SIZE: 50,         // Rule 12: most water the tank can hold (1 water = 1 fire cell)
+  WATER_TANK_SIZE: 100,         // Rule 12: most water the tank can hold (1 water = 1 fire cell)
   WATER_REFILL_EVERY_STEPS: 2, // Rule 12: the tank gains 1 water each time this many steps pass
 
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
   GRASS_FROM_SHRUB_TREE_ONE_IN: 10, // Rule 3
   SHRUB_EMERGE_ONE_IN: 5000,   // Rule 4
-  SHRUB_SPREAD_ONE_IN: 50,     // Rule 5
+  SHRUB_SPREAD_ONE_IN: 60,     // Rule 5
   TREE_EMERGE_ONE_IN: 1000,    // Rule 6
   TREE_SPREAD_ONE_IN: 100,      // Rule 7
   FIRE_IGNITE_ONE_IN: 50000,   // Rule 8 (chance per shrub/tree neighbor)
