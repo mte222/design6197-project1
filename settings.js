@@ -47,7 +47,7 @@ const SETTINGS = {
   CLIMATES: {
     DRY:    { FUEL_BUILDUP: 2 },
     NORMAL: { FUEL_BUILDUP: 1 },
-    WET:    { FUEL_BUILDUP: 0.5 },
+    WET:    { FUEL_BUILDUP: 0.2 },
   },
 
   // SPREADING MODES, one per spreading rule. Choose one:
