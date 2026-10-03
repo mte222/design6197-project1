@@ -41,6 +41,7 @@ let stepCount = 0;
 let playing = false;
 let timer = null;
 let water = SETTINGS.WATER_TANK_SIZE; // Rule 12: the tank starts full
+let climate = "NORMAL"; // Rule 14: one of the names in SETTINGS.CLIMATES
 
 canvas.width = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
 canvas.height = SETTINGS.GRID_SIZE * SETTINGS.CELL_SIZE;
@@ -77,7 +78,7 @@ function updateReadout(counts, heavyFuel) {
 }
 
 function stepForward() {
-  ({ grid, fuelAge } = runStep(grid, fuelAge));
+  ({ grid, fuelAge } = runStep(grid, fuelAge, SETTINGS.CLIMATES[climate]));
   stepCount++;
   water = refillWater(water, stepCount);
   drawGrid();

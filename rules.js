@@ -65,6 +65,13 @@ function rollOneIn(n) {
   return Math.random() < 1 / n;
 }
 
+// RULE 14: Rolls a "1 in N" chance after multiplying it by a climate multiplier.
+// A chance above 100% counts as 100%. With a multiplier of 1 this is the same
+// roll as rollOneIn.
+function rollOneInWithClimate(n, multiplier) {
+  return Math.random() < Math.min(1, multiplier / n);
+}
+
 // Is this spot inside the grid?
 function isInGrid(grid, row, col) {
   return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
@@ -160,7 +167,8 @@ function grow(after, row, col, type) {
 // and all changes are written into a new grid ("after") that replaces it at the end.
 // The fuel clocks (rule 13) work the same way: "ageBefore" is read, and the
 // new clocks are worked out at the end. Returns both new grids.
-function runStep(before, ageBefore) {
+// "climate" is one entry from SETTINGS.CLIMATES (rule 14).
+function runStep(before, ageBefore, climate) {
   const after = before.map(row => row.slice());
 
   for (let row = 0; row < before.length; row++) {
@@ -241,7 +249,8 @@ function runStep(before, ageBefore) {
       // Only shrubs/trees ignite, so this is always the shrub/tree kind of fire.)
       if (cell === SHRUB || cell === TREE) {
         const { matching, real } = countNeighbors(before, row, col, [SHRUB, TREE]);
-        const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN;
+        // RULE 14: Climate changes how easily fire starts.
+        const chance = (matching * 8 / real) / SETTINGS.FIRE_IGNITE_ONE_IN * climate.FIRE_START;
         if (Math.random() < chance) grow(after, row, col, FIRE_KIND_FOR[cell]);
       }
 
@@ -265,7 +274,8 @@ function runStep(before, ageBefore) {
           if (heavyFire || isHeavyFuel(before[r][c], ageBefore[r][c])) {
             chance = SETTINGS.HEAVY_FUEL_SPREAD_ONE_IN;
           }
-          if (rollOneIn(chance)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
+          // RULE 14: Climate changes how easily fire catches.
+          if (rollOneInWithClimate(chance, climate.FIRE_CATCH)) grow(after, r, c, FIRE_KIND_FOR[before[r][c]]);
         }
 
         // RULE 10: When a fire cell that was grass is extinguished, it returns to
@@ -276,7 +286,8 @@ function runStep(before, ageBefore) {
         const goOutChance = heavyFire
           ? SETTINGS.HEAVY_FUEL_EXTINGUISH_ONE_IN
           : SETTINGS.FIRE_EXTINGUISH_ONE_IN;
-        if (rollOneIn(goOutChance)) {
+        // RULE 14: Climate changes how easily fire goes out.
+        if (rollOneInWithClimate(goOutChance, climate.FIRE_GO_OUT)) {
           after[row][col] = cell === GRASS_FIRE ? BARE : BURNED;
         }
       }
@@ -292,7 +303,7 @@ function runStep(before, ageBefore) {
   }
 
   const ageAfter = before.map((cells, row) =>
-    cells.map((was, col) => nextFuelAge(was, after[row][col], ageBefore[row][col])));
+    cells.map((was, col) => nextFuelAge(was, after[row][col], ageBefore[row][col], climate)));
   return { grid: after, fuelAge: ageAfter };
 }
 
@@ -303,11 +314,12 @@ function runStep(before, ageBefore) {
 // does not reset. Only natural burning resets fuel.
 // (This works out a cell's new clock from what it was ("was") and what it is now.
 // The heavy-fuel chances are used in rules 9 and 10 above.)
-function nextFuelAge(was, now, age) {
+function nextFuelAge(was, now, age, climate) {
   const isPlant = (type) => type === SHRUB || type === TREE;
   // Still a shrub or tree: one more step without burning. (A shrub that became
   // a tree keeps counting.) Just became a shrub from grass: start from 0.
-  if (isPlant(now)) return isPlant(was) ? age + 1 : 0;
+  // RULE 14: Climate changes how much the clock adds each step (normal adds 1).
+  if (isPlant(now)) return isPlant(was) ? age + climate.FUEL_BUILDUP : 0;
   // On fire: the clock pauses. If the viewer puts the fire out (rule 12), the
   // cell goes back to being a plant with this same count.
   if (now === SHRUB_FIRE || now === TREE_FIRE) return age;
