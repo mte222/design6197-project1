@@ -30,8 +30,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 9. Each step a fire cell has a 50% chance of extinguishing and a 50% chance of replicating in the cell next to it, as long as that cell is a shrub, tree, or grass. If that cell is grass, the fire only catches 1 in 3 times.
 10. When a fire cell that was grass is extinguished, it returns to bare ground. When a fire cell that was a shrub or tree is extinguished, it becomes burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
-12. Firefighting: While the animation is playing, the viewer can drag a brush across the grid to put out fires. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree) and uses 1 water from a tank. The tank holds 50 water and refills 1 water every 2 steps.
-13. Fuel buildup: Each shrub/tree cell that goes 500 steps without burning becomes heavy fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times instead of the normal chance. When the viewer puts out a fire, the cell's fuel does not reset. Only natural burning resets fuel.
+12. Firefighting: The viewer can turn on a "Firefighting" button. When it's on, a crew of firefighters (each shown as a blue cell) moves around the map, chases fires, and puts them out. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree).
+13. Fuel buildup: Each shrub/tree cell that goes 500 steps without burning becomes heavy fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times instead of the normal chance. When a firefighter puts out a fire, the cell's fuel does not reset. Only natural burning resets fuel.
 14. Climate: The viewer can choose the climate: dry, normal, or wet. Climate only changes how fast fuel builds up. Dry builds fuel faster, wet builds it slower, and normal is the current behavior.
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
@@ -82,22 +82,25 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Color:** charcoal.
 
 ### Firefighting decisions (rule 12)
-- **How:** Hold the mouse button and drag. Every fire cell inside a square brush around the mouse goes out (a single click works too). Brush size is `BRUSH_SIZE` in `settings.js` (5 = a 5×5 square). With wrap-around on, the brush wraps around the edges too.
-- **What it becomes:** Exactly what it was before it caught fire. Grass fire becomes grass, shrub fire becomes shrub, tree fire becomes tree. (Fire now remembers shrub vs. tree; this changes nothing in rules 8–10.)
-- **Water tank:** Each fire cell put out costs 1 water. Sweeping over non-fire cells is free. Tank size is `WATER_TANK_SIZE` and refilling is `WATER_REFILL_EVERY_STEPS` (1 water each time that many steps pass), both in `settings.js`. The tank starts full, and Reset fills it again.
-- **Low water:** If the brush covers more fire than there's water for, the fires closest to the middle of the brush go out first, until the water runs out.
-- **Only while playing:** The brush does nothing while paused.
-- **Timing:** Put-outs happen right away, between steps. On the next step, the cell acts as a normal grass/shrub/tree cell.
-- **On/off:** `FIREFIGHTING` in `settings.js` (true/false). When off, the brush does nothing and the water readout is hidden.
-- **Display:** "Water: 37 / 50" next to the step counter.
-- **Fuel buildup:** Added later as rule 13 (see below).
+(The earlier manual version, where the viewer dragged a brush and used water from a tank, is saved as the `v3-climate` tag.)
+- **On/off:** A "Firefighting" button next to Reset. It starts off. When on, it's bold with a dark outline, like the climate buttons. Turning it off removes the firefighters; turning it on again sends in a new crew. Reset turns it off.
+- **Crew:** `FIREFIGHTER_COUNT` firefighters (starting at 6). When turned on, each appears at a random cell on the outer edge of the grid.
+- **Marker, not a cell type:** A firefighter is a blue square drawn on top of the map. The cell underneath keeps following all the rules, firefighters can walk over anything (including fire), and the readout percentages ignore them.
+- **Choosing a fire:** Each firefighter heads for the nearest fire cell that no other firefighter has claimed. If every fire cell is claimed, it heads for the nearest fire anyway. "Nearest" counts steps in any of the 8 directions.
+- **No fires:** Firefighters wander, each moving in random directions.
+- **Speed:** Up to `FIREFIGHTER_SPEED` cells per step (starting at 2; fire spreads at most 1).
+- **Putting out:** A firefighter puts out every fire cell in the square around it (`FIREFIGHTER_REACH`, starting at 3 = a 3×3 square, its own cell included). No water limit.
+- **Timing:** Firefighters act after all the other rules in a step. Each moves one cell at a time; as soon as any fire is in its square, it stops and puts it all out. A put-out cell acts as a normal grass/shrub/tree cell on the next step. Firefighters only move when a step happens, so they freeze while paused.
+- **Wrap-around edges:** With `WRAP_EDGES` on, firefighters walk off one edge and come back on the other side, and "nearest" is measured the wrap-around way. Their square wraps too. With it off, they stay inside the grid.
+- **Fuel buildup:** Put-outs don't reset the fuel clock (see rule 13).
+- **Color:** blue.
 
 ### Fuel buildup decisions (rule 13)
 - **Marker, not a new cell type:** A heavy-fuel shrub is still a shrub and a heavy-fuel tree is still a tree. Rules 2–8 treat them exactly as before (spreading, emerging, blocking, ignition). Only the fire rules (9 and 10) check for heavy fuel.
 - **The clock:** Each shrub/tree cell counts the steps since it became a shrub. A shrub that becomes a tree (rule 6 or 7) keeps its count. When the count reaches `HEAVY_FUEL_AFTER_STEPS`, the cell is heavy fuel.
 - **Natural burning resets the clock:** When a fire goes out on its own (rule 10), the cell becomes bare or burned ground and the clock starts over from 0.
 - **While burning:** The clock pauses. A fire counts as "burning in heavy fuel" if its cell was heavy fuel when it caught fire.
-- **Viewer put-outs (rule 12) don't reset the clock:** The cell goes back to what it was with its count unchanged, so a heavy-fuel cell stays heavy fuel.
+- **Firefighter put-outs (rule 12) don't reset the clock:** The cell goes back to what it was with its count unchanged, so a heavy-fuel cell stays heavy fuel.
 - **Going out:** A fire burning in heavy fuel uses `HEAVY_FUEL_EXTINGUISH_ONE_IN` instead of `FIRE_EXTINGUISH_ONE_IN`.
 - **Spreading:** If the burning cell *or* the target cell is heavy fuel, the spread uses one boosted chance, `HEAVY_FUEL_SPREAD_ONE_IN`, instead of the normal chance. This includes a heavy-fuel fire spreading into grass, which then uses the boosted chance instead of 1 in 3. Everything else about rule 9 (one/each neighbor, which neighbors can burn) is unchanged.
 - **Ignition (rule 8) is unchanged:** Heavy fuel doesn't catch fire on its own any more often.
@@ -138,7 +141,8 @@ I am learning Git through this project.
 - **`v1-stable`**: the version I liked before the firefighting experiments (rules 1–11 with wrap-around edges). It's a permanent bookmark on that commit.
 - **`v2-firefighting`**: rules 1–13 with firefighting (rule 12) and fuel buildup (rule 13), on the `firefighting` branch, with tuned settings (water tank 100, shrub spread 1 in 60). `forest-share.html` is not part of this version.
 - **`v3-climate-original`**: rules 1–14 with the first climate version, where climate changed fuel buildup *and* fire starting, spreading, and going out.
+- **`v3-climate`**: rules 1–14 with manual firefighting (drag a brush, water tank) and the simplified climate (fuel buildup only), before automatic firefighters.
 - To look at it: `git checkout v1-stable` (commit or stash any changes first). Git will say "detached HEAD", which just means I'm looking at a bookmark, not standing on a branch.
 - To go back to normal work afterward: `git switch main` (or whichever branch I was on).
 - To start new work from that version: `git switch -c <new-branch-name> v1-stable`.
-- The same commands work for `v2-firefighting` and `v3-climate-original` (just swap in the name).
+- The same commands work for `v2-firefighting`, `v3-climate-original`, and `v3-climate` (just swap in the name).
