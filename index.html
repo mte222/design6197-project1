@@ -28,10 +28,21 @@
     <button data-climate="WET">Wet</button>
   </div>
   <div id="readout" class="readout"></div>
-  <canvas id="grid"></canvas>
+  <div class="main">
+    <canvas id="grid"></canvas>
+    <div class="side-panel">
+      <div class="fire-stats">
+        <span>Fires: <strong id="fire-count">0</strong></span>
+        <span>Average size: <strong id="fire-average">–</strong></span>
+        <span>Biggest: <strong id="fire-biggest">–</strong></span>
+      </div>
+      <p class="note">Counts each fire once it's completely out. Size = cells that caught fire.</p>
+    </div>
+  </div>
 
   <script src="settings.js"></script>
   <script src="rules.js"></script>
+  <script src="stats.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
