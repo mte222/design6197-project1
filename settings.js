@@ -15,9 +15,9 @@ const SETTINGS = {
   WRAP_EDGES: true,
 
   // FIREFIGHTERS (Rule 12). Turned on and off with the Firefighting button.
-  FIREFIGHTER_COUNT: 3,  // Rule 12: how many firefighters are in the crew
-  FIREFIGHTER_SPEED: 1,  // Rule 12: most cells a firefighter moves each step (fire spreads at most 1)
-  FIREFIGHTER_REACH: 1,  // Rule 12: puts out all fire in a square this many cells across (3 = 3x3)
+  FIREFIGHTER_COUNT: 6,  // Rule 12: how many firefighters are in the crew
+  FIREFIGHTER_SPEED: 4,  // Rule 12: most cells a firefighter moves each step (fire spreads at most 1)
+  FIREFIGHTER_REACH: 3,  // Rule 12: puts out all fire in a square this many cells across (3 = 3x3)
 
   // CHANCES, written as "1 in N". For example, 2 means a 1 in 2 chance.
   GRASS_SPREAD_ONE_IN: 5,     // Rule 2
@@ -25,17 +25,17 @@ const SETTINGS = {
   SHRUB_EMERGE_ONE_IN: 5000,   // Rule 4
   SHRUB_SPREAD_ONE_IN: 60,     // Rule 5
   TREE_EMERGE_ONE_IN: 1000,    // Rule 6
-  TREE_SPREAD_ONE_IN: 100,      // Rule 7
-  FIRE_IGNITE_ONE_IN: 50000,   // Rule 8 (chance per shrub/tree neighbor)
-  FIRE_EXTINGUISH_ONE_IN: 2,   // Rule 9 (going out; separate roll from spreading)
-  FIRE_SPREAD_ONE_IN: 2,       // Rule 9 (spreading; separate roll from going out)
-  FIRE_GRASS_CATCH_ONE_IN: 3,  // Rule 9 (spreading into grass; used instead of FIRE_SPREAD_ONE_IN)
+  TREE_SPREAD_ONE_IN: 50,      // Rule 7
+  FIRE_IGNITE_ONE_IN: 25000,   // Rule 8 (chance per shrub/tree neighbor)
+  FIRE_EXTINGUISH_ONE_IN: 1.5,   // Rule 9 (going out; separate roll from spreading)
+  FIRE_SPREAD_ONE_IN: 1.5,       // Rule 9 (spreading; separate roll from going out)
+  FIRE_GRASS_CATCH_ONE_IN: 2.5,  // Rule 9 (spreading into grass; used instead of FIRE_SPREAD_ONE_IN)
   BURNED_TO_BARE_ONE_IN: 50,   // Rule 11
 
   // FUEL BUILDUP (Rule 13)
   HEAVY_FUEL_AFTER_STEPS: 500,     // Rule 13: steps without burning before a shrub/tree is heavy fuel
-  HEAVY_FUEL_EXTINGUISH_ONE_IN: 3, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
-  HEAVY_FUEL_SPREAD_ONE_IN: 1.5,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
+  HEAVY_FUEL_EXTINGUISH_ONE_IN: 5, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
+  HEAVY_FUEL_SPREAD_ONE_IN: 1.1,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
 
   // CLIMATE (Rule 14). Climate only changes how fast heavy fuel builds up.
   //   FUEL_BUILDUP: how much the fuel clock adds each step. The finish line stays
