@@ -1,5 +1,7 @@
 # Successional Forest
 
+**▶ [Run it in your browser](https://mte222.github.io/design6197-project1/)**: https://mte222.github.io/design6197-project1/
+
 An emergent animation made for a class on AI, design, and creativity. A grid of cells starts as bare ground with a single patch of grass in the center. Each step, every cell follows a handful of simple rules about spreading, emerging, burning, and recovering. Nothing tells the forest what shape to take, yet distinct patches of grass, shrubs, and trees form, wildfires sweep through, and the land slowly recovers. It's a complex order that emerges from simple rules. An optional crew of firefighters lets you test the "firefighting paradox": putting out every fire lets fuel build up, which can lead to bigger fires later.
 
 ## How to run it
