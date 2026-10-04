@@ -11,9 +11,6 @@ const speedLabel = document.getElementById("speed-label");
 const stepCounter = document.getElementById("step-count");
 const readout = document.getElementById("readout");
 const firefightingButton = document.getElementById("firefighting");
-const fireCount = document.getElementById("fire-count");
-const fireAverage = document.getElementById("fire-average");
-const fireBiggest = document.getElementById("fire-biggest");
 const historyChart = document.getElementById("history-chart");
 const historyTree = document.getElementById("history-tree");
 const historyHeavy = document.getElementById("history-heavy");
@@ -47,7 +44,6 @@ let playing = false;
 let timer = null;
 let firefightingOn = false; // Rule 12: the Firefighting button starts off
 let firefighters = [];      // Rule 12: empty while the button is off
-let fireTracker = createFireTracker(SETTINGS.GRID_SIZE); // Measurement: fire sizes (stats.js)
 let history = [];        // Measurement: tree and heavy fuel % for every step since Reset
 let latestPercents = {}; // Measurement: tree and heavy fuel % on the map right now
 
@@ -74,15 +70,6 @@ function drawGrid() {
   }
   stepCounter.textContent = stepCount;
   updateReadout(counts, heavyFuel);
-  updateFireStats();
-}
-
-// Measurement: number of finished fires, their average size, and the biggest.
-function updateFireStats() {
-  const { fires, totalBurned, biggest } = fireTracker;
-  fireCount.textContent = fires;
-  fireAverage.textContent = fires ? (totalBurned / fires).toFixed(1) : "–";
-  fireBiggest.textContent = fires ? biggest : "–";
 }
 
 // Shows what percentage of the map each cell type covers, plus how much of the
@@ -109,9 +96,7 @@ function recordHistory() {
 
 function stepForward() {
   ({ grid, fuelAge } = runStep(grid, fuelAge));
-  trackFiresCaught(fireTracker, grid); // Measurement: before firefighters, so every catch counts
   runFirefighters(grid, firefighters); // Rule 12: after all the other rules
-  trackFiresOut(fireTracker, grid);
   stepCount++;
   drawGrid();
   recordHistory();
@@ -142,7 +127,6 @@ resetButton.addEventListener("click", () => {
   grid = createStartingGrid(SETTINGS.GRID_SIZE);
   fuelAge = createStartingFuelAge(SETTINGS.GRID_SIZE);
   stepCount = 0;
-  fireTracker = createFireTracker(SETTINGS.GRID_SIZE);
   history = [];
   setFirefighting(false); // Rule 12: Reset turns firefighting off
   drawGrid();

@@ -109,15 +109,8 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 ## Measurement tools (display only, no rule changes)
 These measure whether the firefighting paradox is happening (putting out fires lets fuel build up, leading to bigger fires later). They only watch the map; they never change it, and `rules.js` stays untouched.
 
-### Fire size tracking
-- **What one fire is:** A cell that catches fire next to a cell that was burning on the step before (8 directions, wrap-around when it's on) joins that fire. Burning cells that touch each other are the same fire. A cell that catches fire with no burning neighbor starts a new fire. (A rule 8 ignition right next to a burning fire looks the same as spreading, so it counts as part of that fire.)
-- **Merges:** When two fires touch, they become one fire, and their burned cells are added together.
-- **Size:** Every cell that caught fire, including cells a firefighter put out. Each cell counts once per fire, even if it catches again.
-- **When a fire counts:** Only once it's completely out (no burning cells left). A fire still burning doesn't show in the numbers yet. Two fires that merged count as one fire.
-- **Display:** "Fires: 12 · Average size: 8.4 · Biggest: 41", beside the map. Reset clears them.
-
 ### History graph
-- A line chart beside the map, under the fire numbers, with two lines: **Tree %** (green) and **Heavy fuel %** (purple), on one 0–100% scale.
+- A line chart beside the map, under the Tree and Heavy fuel numbers, with two lines: **Tree %** (green) and **Heavy fuel %** (purple), on one 0–100% scale.
 - It shows the whole run since Reset, squeezing older history as the run gets longer. Reset clears it.
 - On narrow screens, the numbers and chart move below the map.
 
