@@ -32,7 +32,6 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 11. Each burned ground cell has a 1 in 50 chance each step of becoming bare ground. (Since burned grass goes straight to bare ground, this now only applies to burned shrubs and trees.)
 12. Firefighting: The viewer can turn on a "Firefighting" button. When it's on, a crew of firefighters (each shown as a blue cell) moves around the map, chases fires, and puts them out. Each fire cell put out goes back to what it was before it caught fire (grass, shrub, or tree).
 13. Fuel buildup: Each shrub/tree cell that goes 500 steps without burning becomes heavy fuel. Fire burning in heavy fuel has a 1 in 4 chance of going out instead of the normal chance. Fire spreading from or into heavy fuel catches 4 in 5 times instead of the normal chance. When a firefighter puts out a fire, the cell's fuel does not reset. Only natural burning resets fuel.
-14. Climate: The viewer can choose the climate: dry, normal, or wet. Climate only changes how fast fuel builds up. Dry builds fuel faster, wet builds it slower, and normal is the current behavior.
 
 **Burned ground:** Burned ground is a new cell type. Nothing can spread into it or emerge from it until it becomes bare ground.
 
@@ -83,7 +82,7 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 
 ### Firefighting decisions (rule 12)
 (The earlier manual version, where the viewer dragged a brush and used water from a tank, is saved as the `v3-climate` tag.)
-- **On/off:** A "Firefighting" button next to Reset. It starts off. When on, it's bold with a dark outline, like the climate buttons. Turning it off removes the firefighters; turning it on again sends in a new crew. Reset turns it off.
+- **On/off:** A "Firefighting" button next to Reset. It starts off. When on, it's bold with a dark outline. Turning it off removes the firefighters; turning it on again sends in a new crew. Reset turns it off.
 - **Crew:** `FIREFIGHTER_COUNT` firefighters (starting at 6). When turned on, each appears at a random cell on the outer edge of the grid.
 - **Marker, not a cell type:** A firefighter is a blue square drawn on top of the map. The cell underneath keeps following all the rules, firefighters can walk over anything (including fire), and the readout percentages ignore them.
 - **Choosing a fire:** Each firefighter heads for the nearest fire cell that no other firefighter has claimed. If every fire cell is claimed, it heads for the nearest fire anyway. "Nearest" counts steps in any of the 8 directions.
@@ -106,14 +105,6 @@ Cell types: bare ground, grass/wildflowers, shrub, tree, fire, burned ground.
 - **Ignition (rule 8) is unchanged:** Heavy fuel doesn't catch fire on its own any more often.
 - **Color:** Same as normal shrubs and trees (heavy fuel is invisible on the map).
 - **Readout:** Shrub and Tree still include heavy-fuel cells, plus a separate "Heavy fuel" entry for the share of the map that is heavy-fuel shrubs/trees (so totals add up to more than 100%).
-
-### Climate decisions (rule 14)
-- **Only fuel buildup:** Climate changes nothing but how fast heavy fuel builds up. Fire starting, spreading, and going out (rules 8–10, including the heavy-fuel chances) are the same in every climate. (The earlier version, where climate also changed fire, is saved as the `v3-climate-original` tag.)
-- **Fuel buildup = clock speed:** The heavy-fuel finish line (`HEAVY_FUEL_AFTER_STEPS`) stays the same. Each climate has a `FUEL_BUILDUP` value in `settings.js` (`CLIMATES`) for how much the fuel clock adds each step (e.g. dry adds 2, wet adds ½). Normal adds 1, so it behaves exactly like the version before climate.
-- **Not affected:** plant growth (rules 2–7), fire (rules 8–10), burned ground recovery (rule 11), and the water tank (rule 12).
-- **Changing mid-run:** Takes effect on the next step. Built-up fuel stays.
-- **Reset:** Goes back to Normal.
-- **Display:** A "Climate:" row with Dry, Normal, and Wet buttons. The current one is bold with a dark outline (no special colors). "Climate: Normal" also shows next to the step counter. The buttons work while paused.
 
 ## Measurement tools (display only, no rule changes)
 These measure whether the firefighting paradox is happening (putting out fires lets fuel build up, leading to bigger fires later). They only watch the map; they never change it, and `rules.js` stays untouched.
@@ -160,7 +151,8 @@ I am learning Git through this project.
 - **`v2-firefighting`**: rules 1–13 with firefighting (rule 12) and fuel buildup (rule 13), on the `firefighting` branch, with tuned settings (water tank 100, shrub spread 1 in 60). `forest-share.html` is not part of this version.
 - **`v3-climate-original`**: rules 1–14 with the first climate version, where climate changed fuel buildup *and* fire starting, spreading, and going out.
 - **`v3-climate`**: rules 1–14 with manual firefighting (drag a brush, water tank) and the simplified climate (fuel buildup only), before automatic firefighters.
+- **`v4-firefighters`**: rules 1–14 with automatic firefighters, the simplified climate (fuel buildup only), and the fire size numbers (Fires, Average size, Biggest), before climate and the fire numbers were removed for the presentation.
 - To look at it: `git checkout v1-stable` (commit or stash any changes first). Git will say "detached HEAD", which just means I'm looking at a bookmark, not standing on a branch.
 - To go back to normal work afterward: `git switch main` (or whichever branch I was on).
 - To start new work from that version: `git switch -c <new-branch-name> v1-stable`.
-- The same commands work for `v2-firefighting`, `v3-climate-original`, and `v3-climate` (just swap in the name).
+- The same commands work for `v2-firefighting`, `v3-climate-original`, `v3-climate`, and `v4-firefighters` (just swap in the name).

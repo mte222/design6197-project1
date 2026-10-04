@@ -30,15 +30,12 @@ h1 {
   cursor: pointer;
 }
 
-.controls.climate button,
 .controls button.toggle {
   border: 1px solid #aaa;
   background: #fff;
 }
 
-/* Rule 14: the current climate is bold with a dark outline.
-   Rule 12: so is the Firefighting button when it's on. */
-.controls.climate button[aria-pressed="true"],
+/* Rule 12: the Firefighting button is bold with a dark outline when it's on. */
 .controls button.toggle[aria-pressed="true"] {
   font-weight: 700;
   border: 2px solid #222;

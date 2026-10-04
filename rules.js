@@ -160,8 +160,7 @@ function grow(after, row, col, type) {
 // and all changes are written into a new grid ("after") that replaces it at the end.
 // The fuel clocks (rule 13) work the same way: "ageBefore" is read, and the
 // new clocks are worked out at the end. Returns both new grids.
-// "climate" is one entry from SETTINGS.CLIMATES (rule 14).
-function runStep(before, ageBefore, climate) {
+function runStep(before, ageBefore) {
   const after = before.map(row => row.slice());
 
   for (let row = 0; row < before.length; row++) {
@@ -293,7 +292,7 @@ function runStep(before, ageBefore, climate) {
   }
 
   const ageAfter = before.map((cells, row) =>
-    cells.map((was, col) => nextFuelAge(was, after[row][col], ageBefore[row][col], climate)));
+    cells.map((was, col) => nextFuelAge(was, after[row][col], ageBefore[row][col])));
   return { grid: after, fuelAge: ageAfter };
 }
 
@@ -304,12 +303,11 @@ function runStep(before, ageBefore, climate) {
 // does not reset. Only natural burning resets fuel.
 // (This works out a cell's new clock from what it was ("was") and what it is now.
 // The heavy-fuel chances are used in rules 9 and 10 above.)
-function nextFuelAge(was, now, age, climate) {
+function nextFuelAge(was, now, age) {
   const isPlant = (type) => type === SHRUB || type === TREE;
   // Still a shrub or tree: one more step without burning. (A shrub that became
   // a tree keeps counting.) Just became a shrub from grass: start from 0.
-  // RULE 14: Climate changes how much the clock adds each step (normal adds 1).
-  if (isPlant(now)) return isPlant(was) ? age + climate.FUEL_BUILDUP : 0;
+  if (isPlant(now)) return isPlant(was) ? age + 1 : 0;
   // On fire: the clock pauses. If a firefighter puts the fire out (rule 12), the
   // cell goes back to being a plant with this same count.
   if (now === SHRUB_FIRE || now === TREE_FIRE) return age;

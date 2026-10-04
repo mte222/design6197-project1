@@ -11,8 +11,6 @@ const speedLabel = document.getElementById("speed-label");
 const stepCounter = document.getElementById("step-count");
 const readout = document.getElementById("readout");
 const firefightingButton = document.getElementById("firefighting");
-const climateName = document.getElementById("climate-name");
-const climateButtons = document.querySelectorAll("[data-climate]");
 const fireCount = document.getElementById("fire-count");
 const fireAverage = document.getElementById("fire-average");
 const fireBiggest = document.getElementById("fire-biggest");
@@ -49,7 +47,6 @@ let playing = false;
 let timer = null;
 let firefightingOn = false; // Rule 12: the Firefighting button starts off
 let firefighters = [];      // Rule 12: empty while the button is off
-let climate = "NORMAL"; // Rule 14: one of the names in SETTINGS.CLIMATES
 let fireTracker = createFireTracker(SETTINGS.GRID_SIZE); // Measurement: fire sizes (stats.js)
 let history = [];        // Measurement: tree and heavy fuel % for every step since Reset
 let latestPercents = {}; // Measurement: tree and heavy fuel % on the map right now
@@ -111,7 +108,7 @@ function recordHistory() {
 }
 
 function stepForward() {
-  ({ grid, fuelAge } = runStep(grid, fuelAge, SETTINGS.CLIMATES[climate]));
+  ({ grid, fuelAge } = runStep(grid, fuelAge));
   trackFiresCaught(fireTracker, grid); // Measurement: before firefighters, so every catch counts
   runFirefighters(grid, firefighters); // Rule 12: after all the other rules
   trackFiresOut(fireTracker, grid);
@@ -148,7 +145,6 @@ resetButton.addEventListener("click", () => {
   fireTracker = createFireTracker(SETTINGS.GRID_SIZE);
   history = [];
   setFirefighting(false); // Rule 12: Reset turns firefighting off
-  setClimate("NORMAL"); // Rule 14: Reset goes back to Normal
   drawGrid();
   recordHistory();
 });
@@ -156,22 +152,6 @@ resetButton.addEventListener("click", () => {
 speedSlider.addEventListener("input", () => {
   speedLabel.textContent = speedSlider.value;
 });
-
-// CLIMATE BUTTONS (Rule 14)
-// Picks the climate used from the next step on. Works while paused too.
-// Fuel already built up stays; only the multipliers change.
-function setClimate(name) {
-  climate = name;
-  for (const button of climateButtons) {
-    const isCurrent = button.dataset.climate === name;
-    button.setAttribute("aria-pressed", isCurrent);
-    if (isCurrent) climateName.textContent = button.textContent;
-  }
-}
-
-for (const button of climateButtons) {
-  button.addEventListener("click", () => setClimate(button.dataset.climate));
-}
 
 // FIREFIGHTING BUTTON (Rule 12)
 // On: a new crew appears on the edges of the grid. Off: the crew is removed.
@@ -187,7 +167,6 @@ firefightingButton.addEventListener("click", () => {
   drawGrid();
 });
 
-setClimate("NORMAL");
 drawGrid();
 recordHistory();
 

@@ -37,16 +37,6 @@ const SETTINGS = {
   HEAVY_FUEL_EXTINGUISH_ONE_IN: 5, // Rule 13: going out, for fire burning in heavy fuel (used instead of FIRE_EXTINGUISH_ONE_IN)
   HEAVY_FUEL_SPREAD_ONE_IN: 1.1,  // Rule 13: spreading from or into heavy fuel (used instead of the normal chance)
 
-  // CLIMATE (Rule 14). Climate only changes how fast heavy fuel builds up.
-  //   FUEL_BUILDUP: how much the fuel clock adds each step. The finish line stays
-  //   HEAVY_FUEL_AFTER_STEPS, so 2 = heavy fuel twice as fast, 0.5 = half as fast.
-  // NORMAL should stay 1 so it matches the version before climate.
-  CLIMATES: {
-    DRY:    { FUEL_BUILDUP: 2 },
-    NORMAL: { FUEL_BUILDUP: 1 },
-    WET:    { FUEL_BUILDUP: 0.2 },
-  },
-
   // SPREADING MODES, one per spreading rule. Choose one:
   //   "each neighbor" - every one of the 8 neighbors gets its own roll.
   //   "one neighbor"  - pick one of the 8 directions at random and roll once.
